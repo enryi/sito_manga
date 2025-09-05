@@ -9,6 +9,96 @@
     position: relative;
     box-sizing: border-box;
 }
+
+.manga-result-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.manga-image {
+    width: 50px;
+    height: 70px;
+    overflow: hidden;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.manga-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.manga-info {
+    flex-grow: 1;
+}
+
+.manga-title {
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #fff;
+}
+
+.manga-title strong {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.manga-details {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    gap: 8px;
+}
+
+.manga-type {
+    color: #4CAF50;
+}
+
+.no-result-item {
+    padding: 20px 15px;
+    text-align: center;
+}
+
+.no-results-message {
+    color: #888;
+}
+
+.add-suggestion {
+    margin-top: 8px;
+}
+
+.click-to-add {
+    color: #4CAF50;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.login-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #2A2A2A;
+    border: 1px solid #555;
+    border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #404040;
+    border-color: #666;
+    text-decoration: none;
+    color: #fff;
+}
+
+.login-button svg {
+    width: 20px;
+    height: 20px;
+}
 .navbar-container {
     display: flex;
     align-items: center;
@@ -27,49 +117,6 @@
     width: 48px;
     height: 48px;
 }
-.search-container {
-    display: flex;
-    align-items: center;
-    position: relative;
-    left: calc(17% + 20px);
-    width: 350px;
-    margin-right: 10px;
-    margin-left: 0;
-}
-.search-container input {
-    width: 100%;
-    max-width: none;
-    padding: 8px 40px 8px 15px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.3s ease;
-    background-color: #2A2A2A;
-    color: #ccc;
-    box-sizing: border-box;
-}
-.search-container input:focus {
-    border-color: #007BFF;
-}
-.search-container input::placeholder {
-    color: #ccc;
-}
-.search-container .search-icon {
-    width: 32px;
-    height: 32px;
-    stroke: #ccc;
-    fill: none;
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-}
-.search-container.active {
-    z-index: 1001;
-    position: relative;
-}
 .user-container {
     display: flex;
     align-items: center;
@@ -77,6 +124,7 @@
     gap: 15px;
     width: auto;
     position: relative;
+    left: 35px;
 }
 .user-icon {
     width: 28px;
@@ -150,26 +198,6 @@
     background-color: #555 !important; /* Forza il colore di sfondo */
     color: rgb(92, 199, 42) !important; /* Forza il colore del testo */
 }
-.search-results-container {
-    position: absolute;
-    background-color: #2A2A2A;
-    color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-top: calc(32%);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-}
-.search-result-item {
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-.search-result-item:hover {
-    background-color: #444;
-}
 .no-result-item {
     padding: 10px;
     text-align: center;
@@ -230,35 +258,6 @@
 }
 .popup-content form button:hover {
     background-color: #0056b3
-}
-.search-results-container {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border: 2px solid #3A3A3A;
-    border-radius: 10px;
-    background-color: #2A2A2A;
-    width: 100%;
-    box-sizing: border-box;
-    display: none;
-}
-.search-results {
-    font-size: 16px;
-    margin: 0;
-    text-align: center;
-}
-.search-results2 {
-    font-size: 16px;
-    cursor: pointer;
-    text-decoration: underline;
-    margin: 0;
-    text-align: center;
-}
-.search-results2:hover {
-    color: #007BFF;
 }
 select {
     width: 100%;

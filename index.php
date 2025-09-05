@@ -24,11 +24,11 @@
         <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">
-                    <a href="https://enryi.23hosts.com">
-                        <img src="../images/icon.png" alt="Logo" class="logo" />
+                    <a href="">
+                        <img src="images/icon.png" alt="Logo" class="logo" />
                     </a>
                     <div class="nav-links">
-                        <a href="https://enryi.23hosts.com/" class="nav-link">Home</a>
+                        <a href="" class="nav-link">Home</a>
                         <a href="bookmark" class="nav-link">Bookmarks</a>
                         <a href="comics" class="nav-link">Comics</a>
                     </div>
@@ -50,28 +50,39 @@
                             <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
                         </svg>
                     </div>
-                    <?php
-                        $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "images/admin.png" : "images/user.svg";
-                    ?>
-                    <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
-                    <div id="user-dropdown" class="user-dropdown">
-                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                            <a href="pending" class="pending-manga">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
+                    <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
+                        <?php
+                            $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "images/admin.png" : "images/user.svg";
+                        ?>
+                        <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
+                        <div id="user-dropdown" class="user-dropdown">
+                            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                                <a href="pending" class="pending-manga">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Approvazione
+                                </a>
+                            <?php endif; ?>
+                            <a href="#" onclick="logout(); return false;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" x2="9" y1="12" y2="12"></line>
                                 </svg>
-                                Approvazione
+                                Log Out
                             </a>
-                        <?php endif; ?>
-                        <a href="https://enryi.23hosts.com/" onclick="logout()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" x2="9" y1="12" y2="12"></line>
+                        </div>
+                    <?php else: ?>
+                        <a href="login" class="login-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" x2="3" y1="12" y2="12"></line>
                             </svg>
-                            Log Out
+                            Login
                         </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

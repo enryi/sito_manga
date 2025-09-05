@@ -1,18 +1,46 @@
 <?php
     require_once '../php/index.php';
     $_SESSION['current_path'] = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
-    $user_id = $_SESSION['user_id'];
-    $manga_id = 9;
-    $query = "SELECT status, score, chapters FROM lista_utente WHERE user_id = $user_id AND manga_id = $manga_id";
-    $result = mysqli_query($conn, $query);
+    
     $user_status = '';
     $user_score = 0;
     $user_chapters = 0;
-    if ($result && mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        $user_status = $row['status'];
-        $user_score = $row['score'];
-        $user_chapters = $row['chapters'];
+    
+    // Check if user is logged in
+    if (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+        $manga_id = 9;
+        
+        // Prima verifichiamo se la connessione è valida
+        if (!$conn) {
+            error_log("Database connection not available in solo_leveling.php");
+            // Continuiamo con i valori predefiniti
+        } else {
+            $query = "SELECT status, rating, chapters FROM lista_utente WHERE user_id = ? AND manga_id = ?";
+            $stmt = $conn->prepare($query);
+            
+            if ($stmt === false) {
+                error_log("Query preparation failed in solo_leveling.php: " . $conn->error);
+                // Continuiamo con i valori predefiniti
+            } else {
+                if (!$stmt->bind_param("ii", $user_id, $manga_id)) {
+                    error_log("Parameter binding failed in solo_leveling.php: " . $stmt->error);
+                } else {
+                    if ($stmt->execute()) {
+                        $result = $stmt->get_result();
+                        if ($result && $result->num_rows > 0) {
+                            $row = $result->fetch_assoc();
+                            $user_status = $row['status'];
+                            $user_score = $row['rating'];  // Changed from 'score' to 'rating'
+                            $user_chapters = $row['chapters'];
+                        }
+                    } else {
+                        error_log("Query execution failed in solo_leveling.php: " . $stmt->error);
+                    }
+                }
+                $stmt->close();
+            }
+        }
     }
 ?>
 <!DOCTYPE html>

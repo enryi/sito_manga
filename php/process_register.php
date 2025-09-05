@@ -40,8 +40,10 @@
     $stmt->bind_param("ss", $user, $hashed_password);
     if ($stmt->execute()) {
         $_SESSION['registration_success'] = true;
+        $_SESSION['logged_in'] = true;
+        $_SESSION['username'] = $user;
         unset($_SESSION['registration_username']);
-        header("Location: https://enryi.23hosts.com");
+        header("Location: ../login?registered=1");
         $stmt->close();
         $conn->close();
         exit();

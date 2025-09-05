@@ -13,16 +13,6 @@ if ($conn->connect_error) {
 }
 $queryCheck = "SELECT COUNT(*) AS pending_count FROM manga WHERE approved = 0";
 $resultCheck = $conn->query($queryCheck);
-if ($resultCheck) {
-    $rowCheck = $resultCheck->fetch_assoc();
-    if ($rowCheck['pending_count'] == 0) {
-        $conn->close();
-        header("Location: https://enryi.23hosts.com/");
-        exit;
-    }
-} else {
-    die("Error executing check query: " . $conn->error);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,11 +56,11 @@ if ($resultCheck) {
     <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">
-                    <a href="https://enryi.23hosts.com">
-                        <img src="../images/icon.png" alt="Logo" class="logo" />
+                    <a href="php/redirect.php">
+                        <img src="images/icon.png" alt="Logo" class="logo" />
                     </a>
                     <div class="nav-links">
-                        <a href="https://enryi.23hosts.com/;" class="nav-link">Home</a>
+                        <a href="php/redirect.php" class="nav-link">Home</a>
                         <a href="bookmarks" class="nav-link">Bookmarks</a>
                         <a href="comics" class="nav-link">Comics</a>
                     </div>
