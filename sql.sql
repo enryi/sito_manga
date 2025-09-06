@@ -47,6 +47,5 @@ CREATE TABLE notifications (
     INDEX idx_created_at (created_at)
 );
 
--- Aggiungi la colonna submitted_by alla tabella manga per tracciare chi ha aggiunto il manga
 ALTER TABLE manga ADD COLUMN submitted_by INT DEFAULT NULL;
 ALTER TABLE manga ADD FOREIGN KEY (submitted_by) REFERENCES users(id) ON DELETE SET NULL;
