@@ -1,14 +1,11 @@
 RewriteEngine On
 
-# Non toccare file o directory reali
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Se si visita esattamente la root, reindirizza a enryi
 RewriteCond %{REQUEST_URI} ^$
 RewriteRule ^ enryi/login.php [R=302,L]
 
-# Se esiste la versione .php del percorso richiesto, servila
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^ %{REQUEST_URI}.php [L]

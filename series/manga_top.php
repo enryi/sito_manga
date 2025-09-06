@@ -11,7 +11,7 @@
     $query = "
         SELECT m.id, m.title, m.image_url, m.genre, COALESCE(FLOOR(AVG(lu.rating) * 10) / 10, 0) AS rating
         FROM manga m
-        LEFT JOIN lista_utente lu ON m.id = lu.manga_id
+        LEFT JOIN user_list lu ON m.id = lu.manga_id
         WHERE m.approved = 1
         GROUP BY m.id
         HAVING rating > 0

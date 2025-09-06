@@ -41,17 +41,17 @@
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-evenly;
-    gap: 10px;
+    justify-content: flex-start;
+    gap: 20px;
     margin-top: 15px;
-    padding: 0;
+    padding: 0 10px;
 }
 .manga-latest-list {
     width: 100%;
     display: flex;
-    flex-wrap: wrap; /* Permette agli elementi di andare a capo */
-    justify-content: space-evenly; /* Distribuisce uniformemente gli spazi */
-    gap: 10px; /* Spazio uniforme tra gli elementi */
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 10px;
     margin-top: 10px;
     padding: 0;
 }
@@ -72,8 +72,8 @@
     padding: 0;
 }
 .manga-item {
-    flex: 0 1 calc(25% - 20px);
-    max-width: calc(25% - 20px);
+    flex: 0 0 calc(25% - 15px);
+    max-width: calc(25% - 15px);
     margin: 0;
     text-align: center;
     border-radius: 8px;

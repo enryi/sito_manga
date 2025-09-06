@@ -6,7 +6,6 @@ function searchManga() {
     
     const searchTerm = searchInput.value.trim();
 
-    // Clear results if search is empty
     if (searchTerm === '') {
         resultsContainer.style.display = 'none';
         searchResults.innerHTML = '';
@@ -29,18 +28,15 @@ function searchManga() {
         if (data.length === 0) {
             searchResults.innerHTML = `
                 <div class="no-results">
-                    Nessun manga trovato
-                    <a href="php/add_manga.php">clicca qui per crearne uno</a>
+                    No manga found for "<strong>${searchTerm}</strong>".
+                    <br><br>
+                    <span class="add-manga-link" onclick="showAddMangaPopup()">Click here to add it</span>
                 </div>`;
             searchResults2.innerHTML = '';
             resultsContainer.style.display = 'block';
         } else {
-            // Split results between the two containers
-            const midPoint = Math.ceil(data.length / 2);
-            
-            // First half of results
-            data.slice(0, midPoint).forEach(manga => {
-                searchResults.innerHTML += `
+            data.forEach((manga, index) => {
+                const resultHtml = `
                     <div class="manga-result-container" onclick="window.location.href='series/${manga.title.toLowerCase().replace(/\s+/g, '_')}.php'">
                         <div class="manga-image">
                             <img src="${manga.image_url}" alt="${manga.title}">
@@ -50,20 +46,12 @@ function searchManga() {
                         </div>
                     </div>
                 `;
-            });
-
-            // Second half of results
-            data.slice(midPoint).forEach(manga => {
-                searchResults2.innerHTML += `
-                    <div class="manga-result-container" onclick="window.location.href='series/${manga.title.toLowerCase().replace(/\s+/g, '_')}.php'">
-                        <div class="manga-image">
-                            <img src="${manga.image_url}" alt="${manga.title}">
-                        </div>
-                        <div class="manga-info">
-                            <div class="manga-title">${manga.title}</div>
-                        </div>
-                    </div>
-                `;
+                
+                if (index % 2 === 0) {
+                    searchResults.innerHTML += resultHtml;
+                } else {
+                    searchResults2.innerHTML += resultHtml;
+                }
             });
 
             resultsContainer.style.display = 'block';
@@ -74,10 +62,39 @@ function searchManga() {
     });
 }
 
-// Close search results when clicking outside
+function showAddMangaPopup() {
+    const popup = document.getElementById('add-manga-popup');
+    if (popup) {
+        popup.classList.add('show');
+        popup.style.display = 'flex';
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.style.display = 'none';
+    }
+}
+
+function closeAddMangaPopup() {
+    const popup = document.getElementById('add-manga-popup');
+    if (popup) {
+        popup.classList.remove('show');
+        popup.style.display = 'none';
+    }
+}
+
 document.addEventListener('click', function(e) {
     const resultsContainer = document.getElementById('search-results');
+    const popup = document.getElementById('add-manga-popup');
+    
     if (!e.target.closest('.search-container')) {
         resultsContainer.style.display = 'none';
+    }
+    
+    if (popup && popup.classList.contains('show') && e.target === popup) {
+        closeAddMangaPopup();
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeAddMangaPopup();
     }
 });

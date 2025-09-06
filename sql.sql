@@ -31,4 +31,22 @@ CREATE TABLE lista_utente (
     status ENUM('reading', 'completed', 'dropped', 'plan_to_read') NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (manga_id) REFERENCES manga(id) ON DELETE CASCADE
-)
+);
+CREATE TABLE notifications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    manga_id INT,
+    manga_title VARCHAR(255),
+    type ENUM('approval', 'disapproval') NOT NULL,
+    message TEXT NOT NULL,
+    reason TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_read (user_id, is_read),
+    INDEX idx_created_at (created_at)
+);
+
+-- Aggiungi la colonna submitted_by alla tabella manga per tracciare chi ha aggiunto il manga
+ALTER TABLE manga ADD COLUMN submitted_by INT DEFAULT NULL;
+ALTER TABLE manga ADD FOREIGN KEY (submitted_by) REFERENCES users(id) ON DELETE SET NULL;

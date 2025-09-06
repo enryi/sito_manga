@@ -27,7 +27,7 @@
         $stmt->close();
         $conn->close();
     } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid request.']);
+        echo json_encode(['success' => false, 'message' => 'Invalid request']);
         echo "<script>console.error('Error: Invalid request.');</script>";
         header("Location: ../pending");
     }

@@ -2,53 +2,82 @@
     require_once '../php/index.php';
     $_SESSION['current_path'] = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
     
-    $user_status = '';
-    $user_score = 0;
-    $user_chapters = 0;
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "manga";
+    $conn = new mysqli($servername, $username, $password, $dbname);
     
-    // Check if user is logged in
-    if (isset($_SESSION['user_id'])) {
-        $user_id = $_SESSION['user_id'];
-        $manga_id = 9;
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    $mangaQuery = "SELECT * FROM manga WHERE title = 'Solo Leveling' AND approved = 1";
+    $mangaResult = $conn->query($mangaQuery);
+    $currentManga = $mangaResult->fetch_assoc();
+    $mangaId = $currentManga['id'];
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+        $userId = $_SESSION['user_id'];
         
-        // Prima verifichiamo se la connessione è valida
-        if (!$conn) {
-            error_log("Database connection not available in solo_leveling.php");
-            // Continuiamo con i valori predefiniti
-        } else {
-            $query = "SELECT status, rating, chapters FROM lista_utente WHERE user_id = ? AND manga_id = ?";
-            $stmt = $conn->prepare($query);
+        if (isset($_POST['update_status'])) {
+            $status = $_POST['status'];
+            $chapters = intval($_POST['chapters']);
+            $rating = $_POST['rating'] ? floatval($_POST['rating']) : null;
             
-            if ($stmt === false) {
-                error_log("Query preparation failed in solo_leveling.php: " . $conn->error);
-                // Continuiamo con i valori predefiniti
+            $checkQuery = "SELECT id FROM user_list WHERE user_id = ? AND manga_id = ?";
+            $checkStmt = $conn->prepare($checkQuery);
+            $checkStmt->bind_param("ii", $userId, $mangaId);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+            
+            if ($checkResult->num_rows > 0) {
+                $updateQuery = "UPDATE user_list SET status = ?, chapters = ?, rating = ? WHERE user_id = ? AND manga_id = ?";
+                $updateStmt = $conn->prepare($updateQuery);
+                $updateStmt->bind_param("sidii", $status, $chapters, $rating, $userId, $mangaId);
+                $updateStmt->execute();
             } else {
-                if (!$stmt->bind_param("ii", $user_id, $manga_id)) {
-                    error_log("Parameter binding failed in solo_leveling.php: " . $stmt->error);
-                } else {
-                    if ($stmt->execute()) {
-                        $result = $stmt->get_result();
-                        if ($result && $result->num_rows > 0) {
-                            $row = $result->fetch_assoc();
-                            $user_status = $row['status'];
-                            $user_score = $row['rating'];  // Changed from 'score' to 'rating'
-                            $user_chapters = $row['chapters'];
-                        }
-                    } else {
-                        error_log("Query execution failed in solo_leveling.php: " . $stmt->error);
-                    }
-                }
-                $stmt->close();
+                $insertQuery = "INSERT INTO user_list (user_id, manga_id, status, chapters, rating) VALUES (?, ?, ?, ?, ?)";
+                $insertStmt = $conn->prepare($insertQuery);
+                $insertStmt->bind_param("iisid", $userId, $mangaId, $status, $chapters, $rating);
+                $insertStmt->execute();
             }
         }
     }
+
+    $userStatus = null;
+    if (isset($_SESSION['user_id'])) {
+        $userId = $_SESSION['user_id'];
+        $statusQuery = "SELECT status, chapters, rating FROM user_list WHERE user_id = ? AND manga_id = ?";
+        $statusStmt = $conn->prepare($statusQuery);
+        $statusStmt->bind_param("ii", $userId, $mangaId);
+        $statusStmt->execute();
+        $statusResult = $statusStmt->get_result();
+        if ($statusResult->num_rows > 0) {
+            $userStatus = $statusResult->fetch_assoc();
+        }
+    }
+
+    $genres = explode(',', 'Action, Fantasy, Iseaki');
+    $genreList = "'" . implode("','", array_map('trim', $genres)) . "'";
+    $recommendedQuery = "SELECT id, title, image_url FROM manga 
+                          WHERE approved = 1 AND id != $mangaId 
+                          AND (";
+    $conditions = [];
+    foreach ($genres as $genre) {
+        $genre = trim($genre);
+        $conditions[] = "genre LIKE '%$genre%'";
+    }
+    $recommendedQuery .= implode(' OR ', $conditions);
+    $recommendedQuery .= ") ORDER BY RAND() LIMIT 5";
+    $recommendedResult = $conn->query($recommendedQuery);
 ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Solo leveling</title>
+        <title>Solo Leveling - Mangas</title>
         <link rel="icon" href="../images/icon.png" type="image/x-icon">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -61,118 +90,310 @@
         <script src="../JS/user.js"></script>
         <script src="../JS/search.js"></script>
         <style>
-            body {
-                background-color: #181A1B;
-                color: #fff;
-                font-family: 'Roboto', sans-serif;
-                margin: 0;
-                padding: 0;
-            }
-            .container {
+            .manga-page-container {
                 max-width: 1200px;
                 margin: 20px auto;
-                padding: 20px;
-                background-color: #222;
-                border-radius: 8px;
+                padding: 0 20px;
             }
-            .anime-header {
+            
+            .manga-main-content {
                 display: flex;
-                gap: 20px;
+                gap: 30px;
+                margin-bottom: 40px;
+                background: #2a2a2a;
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             }
-            .anime-header img {
-                width: 200px;
-                border-radius: 8px;
+            
+            .manga-image-section {
+                flex: 0 0 300px;
+                text-align: center;
             }
-            .anime-details {
+            
+            .manga-main-image {
+                width: 100%;
+                max-width: 300px;
+                height: 400px;
+                object-fit: cover;
+                border-radius: 12px;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+                transition: transform 0.3s ease;
+            }
+            
+            .manga-main-image:hover {
+                transform: scale(1.05);
+            }
+            
+            .manga-info-section {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            
+            .manga-main-title {
+                font-size: 2.5rem;
+                font-weight: bold;
+                color: #fff;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            
+            .manga-details {
+                margin-bottom: 25px;
+            }
+            
+            .manga-detail-item {
+                display: flex;
+                margin-bottom: 12px;
+                align-items: flex-start;
+            }
+            
+            .detail-label {
+                font-weight: bold;
+                color: #ffc107;
+                min-width: 100px;
+                flex-shrink: 0;
+            }
+            
+            .detail-value {
+                color: #ccc;
                 flex: 1;
             }
-            .anime-details h1 {
-                font-size: 24px;
-                margin-bottom: 10px;
-            }
-            .anime-details .score {
-                font-size: 18px;
-                margin-bottom: 10px;
-            }
-            .anime-details .info {
-                font-size: 14px;
-                margin-bottom: 20px;
-            }
-            .anime-details .synopsis {
-                font-size: 16px;
+            
+            .manga-description {
+                color: #ddd;
                 line-height: 1.6;
-            }
-            .user-interaction {
                 margin-top: 20px;
-                padding: 15px;
-                background-color: #333;
+                padding: 20px;
+                background: rgba(0, 0, 0, 0.3);
                 border-radius: 8px;
+                border-left: 4px solid #ffc107;
+            }
+    
+            .user-controls {
+                background: #1e1e1e;
+                padding: 25px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+                border: 1px solid #444;
+            }
+            
+            .user-controls h3 {
+                color: #ffc107;
+                margin-bottom: 20px;
+                font-size: 1.5rem;
+            }
+            
+            .control-row {
                 display: flex;
                 gap: 20px;
+                margin-bottom: 15px;
                 align-items: center;
+                flex-wrap: wrap;
             }
-            .user-interaction label {
-                font-size: 14px;
-                margin-right: 10px;
+            
+            .control-group {
+                display: flex;
+                flex-direction: column;
+                min-width: 150px;
             }
-            .user-interaction select, .user-interaction input {
-                padding: 8px;
-                border: none;
-                border-radius: 4px;
-                background-color: #444;
+            
+            .control-group label {
+                color: #ccc;
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+            
+            .control-group select,
+            .control-group input {
+                padding: 10px 15px;
+                border: 2px solid #444;
+                border-radius: 8px;
+                background: #2a2a2a;
                 color: #fff;
+                font-size: 14px;
+                transition: border-color 0.3s ease;
             }
-        </style>
-        <script>
-            function addMangaToList(mangaId) {
-                fetch('../php/add_to_list.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ manga_Id: mangaId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Risposta dal server:', data);
-                    if (data.success) {
-                        alert('Manga aggiunto alla lista!');
-                        location.reload();
-                    } else {
-                        alert('Errore: ' + data.error);
-                    }
-                })
-                .catch(error => console.error('Errore:', error));
+            
+            .control-group select:focus,
+            .control-group input:focus {
+                outline: none;
+                border-color: #ffc107;
             }
-            function updateStatusOrScore() {
-                const status = document.getElementById('status').value;
-                const score = document.getElementById('score').value;
-                const chaptersRead = document.getElementById('chapters-read').value;
-                console.log(`Status: ${status}, Score: ${score}, Chapters Read: ${chaptersRead}`);
+            
+            .save-btn {
+                background: linear-gradient(45deg, #28a745, #20c997);
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-left: auto;
             }
-
-            function incrementChapters() {
-                const chaptersInput = document.getElementById('chapters-read');
-                const totalChapters = parseInt(document.getElementById('totalChapters').textContent.split('/')[1]);
-                let currentValue = parseInt(chaptersInput.value);
-                if (currentValue < totalChapters) {
-                    chaptersInput.value = currentValue + 1;
-                    updateStatusOrScore();
+            
+            .save-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+            }
+            
+            .recommendations-section {
+                background: #2a2a2a;
+                border-radius: 12px;
+                padding: 30px;
+                border: 1px solid #444;
+            }
+            
+            .recommendations-title {
+                color: #ffc107;
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+                text-align: center;
+                font-weight: bold;
+            }
+            
+            .recommendations-grid {
+                display: flex;
+                gap: 20px;
+                justify-content: space-between;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+            
+            .recommendation-item {
+                flex: 0 0 calc(20% - 16px);
+                min-width: 180px;
+                text-align: center;
+                background: #1e1e1e;
+                border-radius: 10px;
+                padding: 15px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                border: 2px solid transparent;
+            }
+            
+            .recommendation-item:hover {
+                transform: translateY(-8px);
+                border-color: #ffc107;
+                box-shadow: 0 10px 25px rgba(255, 193, 7, 0.2);
+            }
+            
+            .recommendation-item img {
+                width: 100%;
+                height: 220px;
+                object-fit: cover;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                transition: filter 0.3s ease;
+            }
+            
+            .recommendation-item:hover img {
+                filter: brightness(1.1);
+            }
+            
+            .recommendation-title {
+                color: #fff;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.3;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            
+            .no-recommendations {
+                text-align: center;
+                color: #666;
+                font-style: italic;
+                padding: 40px;
+            }
+            
+            @media (max-width: 1024px) {
+                .recommendations-grid {
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+                
+                .recommendation-item {
+                    flex: 0 0 calc(33.333% - 14px);
                 }
             }
-        </script>
+            
+            @media (max-width: 768px) {
+                .manga-main-content {
+                    flex-direction: column;
+                    text-align: center;
+                }
+                
+                .manga-image-section {
+                    flex: none;
+                }
+                
+                .control-row {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                
+                .recommendation-item {
+                    flex: 0 0 calc(50% - 10px);
+                }
+                
+                .manga-main-title {
+                    font-size: 2rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .recommendation-item {
+                    flex: 0 0 100%;
+                }
+                
+                .manga-page-container {
+                    padding: 0 15px;
+                }
+                
+                .manga-main-content,
+                .user-controls,
+                .recommendations-section {
+                    padding: 20px;
+                }
+            }
+        
+            .status-reading { border-left-color: #28a745; }
+            .status-completed { border-left-color: #007bff; }
+            .status-dropped { border-left-color: #dc3545; }
+            .status-plan_to_read { border-left-color: #ffc107; }
+            
+            .rating-stars {
+                display: flex;
+                gap: 5px;
+                margin-top: 10px;
+            }
+            
+            .star {
+                width: 20px;
+                height: 20px;
+                fill: #ffc107;
+            }
+        </style>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
         <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">
-                    <a href="https://enryi.23hosts.com">
+                    <a href="../php/redirect.php">
                         <img src="../images/icon.png" alt="Logo" class="logo" />
                     </a>
                     <div class="nav-links">
-                        <a href="https://enryi.23hosts.com" class="nav-link">Home</a>
-                        <a href="bookmark" class="nav-link">Bookmarks</a>
-                        <a href="comics" class="nav-link">Comics</a>
+                        <a href="../php/redirect.php" class="nav-link">Home</a>
+                        <a href="../bookmark" class="nav-link">Bookmarks</a>
+                        <a href="../comics" class="nav-link">Comics</a>
                     </div>
                 </div>
                 <div class="search-container" autocomplete="off">
@@ -192,128 +413,157 @@
                             <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
                         </svg>
                     </div>
-                    <?php
-                        $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "../images/admin.png" : "../images/user.svg";
-                    ?>
-                    <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
-                    <div id="user-dropdown" class="user-dropdown">
-                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                            <a href="../pending" class="pending-manga">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
+                    <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
+                        <?php $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "../images/admin.png" : "../images/user.svg"; ?>
+                        <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
+                        <div id="user-dropdown" class="user-dropdown">
+                            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                                <a href="../pending" class="pending-manga">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Pending
+                                </a>
+                            <?php endif; ?>
+                            <a href="#" onclick="logout(); return false;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" x2="9" y1="12" y2="12"></line>
                                 </svg>
-                                Approvazione
+                                Log Out
                             </a>
-                        <?php endif; ?>
-                        <a href="https://enryi.23hosts.com" onclick="logout()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" x2="9" y1="12" y2="12"></line>
+                        </div>
+                    <?php else: ?>
+                        <a href="../login" class="login-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" x2="3" y1="12" y2="12"></line>
                             </svg>
-                            Log Out
+                            Login
                         </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
-        <div class="manga">
-            <div class="manga-container">
-                <div class="left-column">
-                    <div class="anime-header" style="display: flex; gap: 20px; align-items: flex-start; background-color: #222; border: 1px solid #444; border-radius: 8px; padding: 15px;">
-                        <div class="anime-image" style="flex: 1; max-width: 250px;">
-                            <img src="../uploads/manga/01J3BAXFBTABT3VNAV3RPNZK7S-optimized.webp" alt="Ore dake Level Up na Ken" style="width: 100%; border-radius: 8px; object-fit: cover;">
+
+        <div class="manga-page-container">
+            <div class="manga-main-content">
+                <div class="manga-image-section">
+                    <img src="../<?php echo $currentManga['image_url']; ?>" alt="Solo Leveling" class="manga-main-image">
+                </div>
+                
+                <div class="manga-info-section">
+                    <h1 class="manga-main-title">Solo Leveling</h1>
+                    
+                    <div class="manga-details">
+                        <div class="manga-detail-item">
+                            <span class="detail-label">Autore:</span>
+                            <span class="detail-value"><?php echo $currentManga['author']; ?></span>
                         </div>
-                        <div class="anime-details" style="flex: 2; margin-left: 20px;">
-                            <h1 style="font-size: 24px; margin-bottom: 10px;">Solo leveling</h1>
-                            <div class="score" style="font-size: 18px; margin-bottom: 10px;">Score: 8.27</div>
-                            <div class="manga-user-interaction" style="display: flex; align-items: center; gap: 20px; margin-top: 20px; background-color: #333; padding: 15px; border-radius: 8px;">
-                                <!-- Select per lo status -->
-                                <div class="manga-status-container">
-                                    <label for="manga-status" style="font-size: 14px; margin-right: 10px;">Status:</label>
-                                    <select name="manga-status" id="manga-status" class="manga-form-user-status" onchange="updateMangaStatusOrScore()" style="background-color: #444; color: #fff; border: none; padding: 5px; border-radius: 4px; font-size: 12px; width: 150px;">
-                                        <option value="" disabled>Status</option>
-                                        <option value="Reading" <?php echo $user_status === 'Reading' ? 'selected' : ''; ?>>Reading</option>
-                                        <option value="Completed" <?php echo $user_status === 'Completed' ? 'selected' : ''; ?>>Completed</option>
-                                        <option value="Dropped" <?php echo $user_status === 'Dropped' ? 'selected' : ''; ?>>Dropped</option>
-                                        <option value="Plan to Read" <?php echo $user_status === 'Plan to Read' ? 'selected' : ''; ?>>Plan to Read</option>
-                                    </select>
-                                </div>
-
-                                <!-- Select per il punteggio -->
-                                <div class="manga-score-container">
-                                    <label for="manga-score" style="font-size: 14px; margin-right: 10px;">Score:</label>
-                                    <select name="manga-score" id="manga-score" class="manga-form-user-score" onchange="updateMangaStatusOrScore()" style="background-color: #444; color: #fff; border: none; padding: 5px; border-radius: 4px; font-size: 12px; width: 150px;">
-                                        <option value="0" <?php echo $user_score == 0 ? 'selected' : ''; ?>>Select</option>
-                                        <option value="10" <?php echo $user_score == 10 ? 'selected' : ''; ?>>(10) Masterpiece</option>
-                                        <option value="9" <?php echo $user_score == 9 ? 'selected' : ''; ?>>(9) Great</option>
-                                        <option value="8" <?php echo $user_score == 8 ? 'selected' : ''; ?>>(8) Very Good</option>
-                                        <option value="7" <?php echo $user_score == 7 ? 'selected' : ''; ?>>(7) Good</option>
-                                        <option value="6" <?php echo $user_score == 6 ? 'selected' : ''; ?>>(6) Fine</option>
-                                        <option value="5" <?php echo $user_score == 5 ? 'selected' : ''; ?>>(5) Average</option>
-                                        <option value="4" <?php echo $user_score == 4 ? 'selected' : ''; ?>>(4) Bad</option>
-                                        <option value="3" <?php echo $user_score == 3 ? 'selected' : ''; ?>>(3) Very Bad</option>
-                                        <option value="2" <?php echo $user_score == 2 ? 'selected' : ''; ?>>(2) Horrible</option>
-                                        <option value="1" <?php echo $user_score == 1 ? 'selected' : ''; ?>>(1) Appalling</option>
-                                    </select>
-                                </div>
-
-                                <!-- Input per i capitoli -->
-                                <div class="manga-chapters-container" style="display: flex; align-items: center; gap: 10px;">
-                                    <label for="manga-myinfo-watchedeps" style="font-size: 14px;">Chapters:</label>
-                                    <input type="text" id="manga-myinfo-watchedeps" name="manga-myinfo-watchedeps" size="3" class="manga-inputtext js-manga-user-episode-seen" value="<?php echo $user_chapters; ?>" data-eps="12" style="width: 50px; background-color: #333; color: #fff; border: none; padding: 5px; border-radius: 4px; font-size: 12px; text-align: center;" onchange="updateMangaStatusOrScore()">
-                                    <span id="manga-curEps" data-num="12" style="color: #aaa; font-size: 12px;">/ 200</span>
-                                    <a href="javascript:void(0);" class="js-manga-btn-count manga-increase ml4" onclick="incrementChapters()" style="color: #fff; text-decoration: none; font-size: 14px;">
-                                        <i class="fa-solid fa-circle-plus"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="synopsis" style="margin-top: 20px; font-size: 14px; line-height: 1.6;">
-                                Humanity was caught at a precipice a decade ago when the first gates—portals linked with other dimensions that harbor monsters immune to conventional weaponry—emerged around the world...
-                            </div>
+                        <div class="manga-detail-item">
+                            <span class="detail-label">Tipo:</span>
+                            <span class="detail-value"><?php echo $currentManga['type']; ?></span>
+                        </div>
+                        <div class="manga-detail-item">
+                            <span class="detail-label">Generi:</span>
+                            <span class="detail-value"><?php echo $currentManga['genre']; ?></span>
                         </div>
                     </div>
-                </div>
-                <div class="top-manga-container">
-                    <h3 class="manga-title">TOP MANGA</h3>
-                    <div class="divider"></div>
-                    <div class="manga-top-list">
-                        <?php
-                            require_once 'manga_top.php';
-                        ?>
+                    
+                    <div class="manga-description">
+                        <p><?php echo $currentManga['description']; ?></p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="add-manga-popup" class="popup">
-            <div class="popup-content">
-                <span class="close-btn" onclick="closeAddMangaPopup()">&times;</span>
-                <h5>ADD NEW MANGA</h5>
-                <form id="add-manga-form" method="post" action="../php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
-                    <label for="manga-title">TITLE:</label>
-                    <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
-                    
-                    <label for="manga-image">UPLOAD IMAGE:</label>
-                    <input type="file" id="manga-image" name="manga-image" accept="image/*" required>
-                    
-                    <label for="manga-description">DESCRIPTION:</label>
-                    <input type="text" id="manga-description" name="manga-description" placeholder="Description" required>
-                    
-                    <label for="manga-author">AUTHOR:</label>
-                    <input type="text" id="manga-author" name="manga-author" placeholder="Author" required>
-                    
-                    <label for="manga-type">TYPE:</label>
-                    <select id="manga-type" name="manga-type" required>
-                        <option value="" disabled selected>Type</option>
-                        <option value="Manga">Manga</option>
-                        <option value="Manwha">Manwha</option>
-                        <option value="Manhua">Manhua</option>
-                    </select>
-                    <label for="manga-genre">GENRE:</label>
-                    <input type="text" id="manga-genre" name="manga-genre" placeholder="Genre" required>
-                    <button type="submit">ADD MANGA</button>
-                </form>
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="user-controls <?php echo $userStatus ? 'status-' . $userStatus['status'] : ''; ?>">
+                    <form method="post" id="manga-status-form">
+                        <input type="hidden" name="update_status" value="1">
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label for="status">Stato:</label>
+                                <select name="status" id="status" onchange="autoSave()">
+                                    <option value="plan_to_read" <?php echo ($userStatus && $userStatus['status'] == 'plan_to_read') ? 'selected' : ''; ?>>Plan to read</option>
+                                    <option value="reading" <?php echo ($userStatus && $userStatus['status'] == 'reading') ? 'selected' : ''; ?>>Reading</option>
+                                    <option value="completed" <?php echo ($userStatus && $userStatus['status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
+                                    <option value="dropped" <?php echo ($userStatus && $userStatus['status'] == 'dropped') ? 'selected' : ''; ?>>Dropped</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="chapters">Capitoli letti:</label>
+                                <input type="number" name="chapters" id="chapters" min="0" 
+                                       value="<?php echo $userStatus ? $userStatus['chapters'] : 0; ?>"
+                                       onchange="autoSave()">
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="rating">Voto (1-10):</label>
+                                <input type="number" name="rating" id="rating" min="1" max="10" step="0.1"
+                                       value="<?php echo $userStatus && $userStatus['rating'] ? $userStatus['rating'] : ''; ?>"
+                                       onchange="autoSave()">
+                            </div>
+                            
+                            <button type="submit" class="save-btn">Save</button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
+
+            <div class="recommendations-section">
+                <h2 class="recommendations-title">Manga Raccomandati</h2>
+                <div class="recommendations-grid">
+                    <?php if ($recommendedResult && $recommendedResult->num_rows > 0): ?>
+                        <?php while ($recommended = $recommendedResult->fetch_assoc()): ?>
+                            <?php 
+                                $recTitleSlug = strtolower(str_replace(' ', '_', $recommended['title'])); 
+                                $recPageUrl = $recTitleSlug . ".php";
+                            ?>
+                            <div class="recommendation-item" onclick="window.location.href='<?php echo $recPageUrl; ?>'">
+                                <img src="../<?php echo $recommended['image_url']; ?>" alt="<?php echo htmlspecialchars($recommended['title']); ?>">
+                                <div class="recommendation-title"><?php echo htmlspecialchars($recommended['title']); ?></div>
+                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <div class="no-recommendations">Nessun manga raccomandato disponibile al momento.</div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
+
+        <script>
+            function autoSave() {
+                const form = document.getElementById('manga-status-form');
+                if (form) {
+                    const saveBtn = document.querySelector('.save-btn');
+                    saveBtn.textContent = 'Saving...';
+                    saveBtn.style.backgroundColor = '#ffc107';
+                    
+                    form.submit();
+                }
+            }
+            
+            document.getElementById('status')?.addEventListener('change', function() {
+                const userControls = document.querySelector('.user-controls');
+                userControls.className = userControls.className.replace(/status-\w+/, '');
+                userControls.classList.add('status-' + this.value);
+            });
+            
+            function adjustForMobile() {
+                if (window.innerWidth <= 768) {
+                    const grid = document.querySelector('.recommendations-grid');
+                    if (grid) {
+                        grid.style.flexDirection = 'column';
+                        grid.style.alignItems = 'center';
+                    }
+                }
+            }
+            
+            window.addEventListener('resize', adjustForMobile);
+            adjustForMobile();
+        </script>
     </body>
 </html>

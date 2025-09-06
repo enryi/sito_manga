@@ -13,7 +13,6 @@
             header("Location: ../login");
             exit();
         }
-        // Prima otteniamo l'ID e la password dell'utente
         $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
         if ($stmt === false) {
             $_SESSION['login_error'] = 'Query preparation failed: ' . $conn->error;
@@ -50,7 +49,6 @@
         $user_id = $row['id'];
         $hashed_password = $row['password'];
 
-        // Verifichiamo se l'utente è un admin
         $stmt->close();
         $stmt = $conn->prepare("SELECT 1 FROM admin WHERE user_id = ?");
         if ($stmt === false) {

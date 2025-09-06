@@ -1,34 +1,53 @@
 <?php
     session_start();
+    require_once 'notification_functions.php';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = $_POST['manga-title'];
         $description = $_POST['manga-description'];
         $author = $_POST['manga-author'];
         $type = $_POST['manga-type'];
         $genre = $_POST['manga-genre'];
+        
         if (!in_array($type, ['Manga', 'Manwha', 'Manhua'])) {
             die("Invalid type: $type");
         }
-         if (isset($_FILES['manga-image']) && $_FILES['manga-image']['error'] === UPLOAD_ERR_OK) {
+        
+        if (isset($_FILES['manga-image']) && $_FILES['manga-image']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = '../uploads/manga/';
             $uploadFile = $uploadDir . basename($_FILES['manga-image']['name']);
             $imageUrl = 'uploads/manga/' . basename($_FILES['manga-image']['name']);
+            
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
+            
             if (move_uploaded_file($_FILES['manga-image']['tmp_name'], $uploadFile)) {
                 $servername = "localhost";
                 $username = "root";
                 $password = "";
                 $dbname = "manga";
                 $conn = new mysqli($servername, $username, $password, $dbname);
+                
                 if ($conn->connect_error) {
                     die("Connection failed: " . $conn->connect_error);
                 }
-                $stmt = $conn->prepare("INSERT INTO manga (title, image_url, description, author, type, genre) VALUES (?, ?, ?, ?, ?, ?)");
+                
+                $stmt = $conn->prepare("INSERT INTO manga (title, image_url, description, author, type, genre, approved) VALUES (?, ?, ?, ?, ?, ?, 0)");
                 $stmt->bind_param("ssssss", $title, $imageUrl, $description, $author, $type, $genre);
+                
                 if ($stmt->execute()) {
-                    $redirectPath = isset($_SESSION['current_path']) ? $_SESSION['current_path'] : 'https://enryi.23hosts.com';
+                    $manga_id = $conn->insert_id;
+
+                    $notification_title = "New Manga Pending Approval";
+                    $notification_message = "The manga '{$title}' has been added and requires approval.";
+                    
+                    if (notifyAllAdmins($conn, 'manga_pending', $notification_title, $notification_message, $manga_id)) {
+                        error_log("Notifications successfully sent for the manga: $title");
+                    } else {
+                        error_log("Error sending notifications for the manga: $title");
+                    }
+                    
+                    $redirectPath = isset($_SESSION['current_path']) ? $_SESSION['current_path'] : 'localhost';
                     header("Location: $redirectPath");
                     exit();
                 } else {
@@ -36,6 +55,7 @@
                     echo "<script>console.error('Failed to add manga.');</script>";
                     header("Location: ../pending");
                 }
+                
                 $stmt->close();
                 $conn->close();
             } else {

@@ -19,6 +19,7 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         <script src="JS/user.js"></script>
         <script src="JS/search.js"></script>
+        <script src="JS/notifications.js"></script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
         <div class="navbar">
@@ -61,7 +62,7 @@
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    Approvazione
+                                    Pending
                                 </a>
                             <?php endif; ?>
                             <a href="#" onclick="logout(); return false;">

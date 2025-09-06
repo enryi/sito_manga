@@ -6,7 +6,7 @@
     $dbname = "manga";
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
-        die("Connessione fallita: " . $conn->connect_error);
+        die("Connection failed: " . $conn->connect_error);
     }
     $username = $_POST['username'];
     $new_password = $_POST['password'];
@@ -15,10 +15,10 @@
     $stmt->bind_param("sss", $username, $hashed_password, $username);
     if ($stmt->execute()) {
         $_SESSION['password_changed'] = true;
-        header("Location: https://enryi.23hosts.com");
+        header("Location: redirect.php");
         exit();
     } else {
-        echo "Errore durante l'aggiornamento: " . $stmt->error;
+        echo "Error in the update: " . $stmt->error;
     }
     $stmt->close();
     $conn->close();

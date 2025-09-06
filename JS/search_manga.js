@@ -10,14 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(debounceTimer);
         const searchTerm = this.value.trim();
 
-        // Clear results if search is empty
         if (searchTerm === '') {
             searchResults.style.display = 'none';
             searchResults.innerHTML = '';
             return;
         }
 
-        // Debounce the search to prevent too many requests
         debounceTimer = setTimeout(() => {
             const formData = new FormData();
             formData.append('search', searchTerm);
@@ -50,10 +48,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error:', error);
             });
-        }, 300); // Wait 300ms after user stops typing
+        }, 300);
     });
 
-    // Close search results when clicking outside
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.search-container')) {
             searchResults.style.display = 'none';

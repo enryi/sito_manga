@@ -6,7 +6,7 @@
     $dbname = "manga";
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
-        die("Connessione fallita: " . $conn->connect_error);
+        die("Connection failed: " . $conn->connect_error);
     }
     $user = $_POST['username'];
     $pass = $_POST['password'];
@@ -31,7 +31,7 @@
         return false;
     }
     if (is_password_pwned($pass)) {
-        $_SESSION['registration_error'] = "La password inserita è stata trovata in un elenco di password rubate. Scegli una password diversa.";
+        $_SESSION['registration_error'] = "The password you entered was found in a list of stolen passwords. Choose a different password.";
         header("Location: ../register");
         exit();
     }
@@ -49,9 +49,9 @@
         exit();
     } else {
         if (strpos($stmt->error, "Duplicate entry") !== false && strpos($stmt->error, "username") !== false) {
-            $_SESSION['registration_error'] = "L'username esiste già.";
+            $_SESSION['registration_error'] = "The username already exist.";
         } else {
-            $_SESSION['registration_error'] = "Errore durante la registrazione: " . $stmt->error;
+            $_SESSION['registration_error'] = "Error during registration: " . $stmt->error;
         }
         header("Location: ../register");
         $stmt->close();

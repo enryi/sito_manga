@@ -5,7 +5,7 @@
     $dbname = "manga";
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
-        die(json_encode(['success' => false, 'message' => 'Errore di connessione al database']));
+        die(json_encode(['success' => false, 'message' => 'Database connection error']));
     }
     $username = $_POST['username'];
     $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");

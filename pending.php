@@ -1,18 +1,18 @@
 <?php
-require_once 'php/index.php';
-$_SESSION['current_path'] = $_SERVER['PHP_SELF'];
+    require_once 'php/index.php';
+    $_SESSION['current_path'] = $_SERVER['PHP_SELF'];
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "manga";
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "manga";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-$queryCheck = "SELECT COUNT(*) AS pending_count FROM manga WHERE approved = 0";
-$resultCheck = $conn->query($queryCheck);
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $queryCheck = "SELECT COUNT(*) AS pending_count FROM manga WHERE approved = 0";
+    $resultCheck = $conn->query($queryCheck);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,6 +32,7 @@ $resultCheck = $conn->query($queryCheck);
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         <script src="JS/user.js"></script>
         <script src="JS/search.js"></script>
+        <script src="JS/notifications.js"></script>
         <script>
             function toggleDescription(button) {
                 const mangaItem = button.closest('.manga-item');
@@ -87,7 +88,7 @@ $resultCheck = $conn->query($queryCheck);
                     ?>
                     <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
                     <div id="user-dropdown" class="user-dropdown">
-                        <a href="https://enryi.23hosts.com/" onclick="logout()">
+                        <a href="php/redirect.php" onclick="logout()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -148,6 +149,11 @@ $resultCheck = $conn->query($queryCheck);
                             echo '<div class="approval-buttons">';
                             echo '<form method="post" action="php/approve_manga.php" style="display: inline;">';
                             echo '<input type="hidden" name="manga_id" value="' . $mangaId . '">';
+                            echo '<input type="hidden" name="description" id="description-' . $mangaId . '" value="' . $mangaDescription . '">';
+                            echo '<input type="hidden" name="author" id="author-' . $mangaId . '" value="' . $mangaAuthor . '">';
+                            echo '<input type="hidden" name="type" id="type-' . $mangaId . '" value="' . $mangaType . '">';
+                            echo '<input type="hidden" name="genre" id="genre-' . $mangaId . '" value="' . $mangaGenre . '">';
+                            echo '<input type="hidden" name="redirect" value="redirect.php">';
                             echo '<button type="submit" class="btn btn-success">Approve</button>';
                             echo '</form>';
                             echo '<form method="post" action="php/disapprove_manga.php" style="display: inline; margin-left: 10px;">';
@@ -164,32 +170,6 @@ $resultCheck = $conn->query($queryCheck);
                     }
                     $conn->close();
                 ?>
-        </div>
-        <div id="add-manga-popup" class="popup">
-            <div class="popup-content">
-                <span class="close-btn" onclick="closeAddMangaPopup()">&times;</span>
-                <h5>ADD NEW MANGA</h5>
-                <form id="add-manga-form" method="post" action="php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
-                    <label for="manga-title">TITLE:</label>
-                    <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
-                    <label for="manga-image">UPLOAD IMAGE:</label>
-                    <input type="file" id="manga-image" name="manga-image" accept="image/*" required>
-                    <label for="manga-description">DESCRIPTION:</label>
-                    <input type="text" id="manga-description" name="manga-description" placeholder="Description" required>
-                    <label for="manga-author">AUTHOR:</label>
-                    <input type="text" id="manga-author" name="manga-author" placeholder="Author" required>
-                    <label for="manga-type">TYPE:</label>
-                    <select id="manga-type" name="manga-type" required>
-                        <option value="" disabled selected>Type</option>
-                        <option value="Manga">Manga</option>
-                        <option value="Manwha">Manwha</option>
-                        <option value="Manhua">Manhua</option>
-                    </select>
-                    <label for="manga-genre">GENRE:</label>
-                    <input type="text" id="manga-genre" name="manga-genre" placeholder="Genre" required>
-                    <button type="submit">ADD MANGA</button>
-                </form>
-            </div>
         </div>
     </body>
 </html>

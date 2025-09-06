@@ -19,16 +19,25 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         <script src="JS/user.js"></script>
         <script src="JS/search.js"></script>
+        <script src="JS/notifications.js"></script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
+        <?php
+            require_once 'php/get_bookmarks.php';
+            if (!isset($_SESSION['user_id'])) {
+                header('Location: php/redirect.php');
+                exit();
+            }
+            $bookmarks = getUserBookmarks($_SESSION['user_id']);
+        ?>
         <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">
-                    <a href="https://enryi.23hosts.com">
-                        <img src="../images/icon.png" alt="Logo" class="logo" />
+                    <a href="php/redirect.php">
+                        <img src="images/icon.png" alt="Logo" class="logo" />
                     </a>
                     <div class="nav-links">
-                        <a href="https://enryi.23hosts.com/" class="nav-link">Home</a>
+                        <a href="php/redirect.php" class="nav-link">Home</a>
                         <a href="bookmark" class="nav-link">Bookmarks</a>
                         <a href="comics" class="nav-link">Comics</a>
                     </div>
@@ -60,10 +69,10 @@
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
                                     <polyline points="20 6 9 17 4 12"></polyline>
                                 </svg>
-                                Approvazione
+                                Approval
                             </a>
                         <?php endif; ?>
-                        <a href="https://enryi.23hosts.com/" onclick="logout()">
+                        <a href="php/redirect.php" onclick="logout()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -82,6 +91,46 @@
                         <h3 class="manga-title">BOOKMARK</h3>
                         <div class="divider"></div>
                         <div class="manga-popular-list">
+                            <?php if (isset($bookmarks['error'])): ?>
+                                <div class="error-message">
+                                    <?php echo htmlspecialchars($bookmarks['error']); ?>
+                                </div>
+                            <?php elseif (empty($bookmarks)): ?>
+                                <div class="manga-item-fake">
+                                    <p>You haven't added any manga to your list yet!</p>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($bookmarks as $manga): ?>
+                                    <div class="manga-item" onclick="window.location.href='series/<?php echo strtolower(str_replace(' ', '_', $manga['title'])); ?>.php'">
+                                        <img src="<?php echo htmlspecialchars($manga['image_url']); ?>" alt="<?php echo htmlspecialchars($manga['title']); ?>">
+                                        <h3><?php echo htmlspecialchars($manga['title']); ?></h3>
+                                        <div class="manga-details">
+                                            <?php if ($manga['rating']): ?>
+                                                <span class="rating">★ <?php echo number_format($manga['rating'], 1); ?></span>
+                                            <?php endif; ?>
+                                            <span class="status"><?php 
+                                                switch($manga['status']) {
+                                                    case 'reading':
+                                                        echo 'Reading';
+                                                        break;
+                                                    case 'completed':
+                                                        echo 'Completed';
+                                                        break;
+                                                    case 'plan_to_read':
+                                                        echo 'Plan to read';
+                                                        break;
+                                                    case 'dropped':
+                                                        echo 'Dropped';
+                                                        break;
+                                                }
+                                            ?></span>
+                                            <?php if ($manga['chapters']): ?>
+                                                <span class="chapters">Ch: <?php echo $manga['chapters']; ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -94,36 +143,6 @@
                         ?>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div id="add-manga-popup" class="popup">
-            <div class="popup-content">
-                <span class="close-btn" onclick="closeAddMangaPopup()">&times;</span>
-                <h5>ADD NEW MANGA</h5>
-                <form id="add-manga-form" method="post" action="php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
-                    <label for="manga-title">TITLE:</label>
-                    <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
-                    
-                    <label for="manga-image">UPLOAD IMAGE:</label>
-                    <input type="file" id="manga-image" name="manga-image" accept="image/*" required>
-                    
-                    <label for="manga-description">DESCRIPTION:</label>
-                    <input type="text" id="manga-description" name="manga-description" placeholder="Description" required>
-                    
-                    <label for="manga-author">AUTHOR:</label>
-                    <input type="text" id="manga-author" name="manga-author" placeholder="Author" required>
-                    
-                    <label for="manga-type">TYPE:</label>
-                    <select id="manga-type" name="manga-type" required>
-                        <option value="" disabled selected>Type</option>
-                        <option value="Manga">Manga</option>
-                        <option value="Manwha">Manwha</option>
-                        <option value="Manhua">Manhua</option>
-                    </select>
-                    <label for="manga-genre">GENRE:</label>
-                    <input type="text" id="manga-genre" name="manga-genre" placeholder="Genre" required>
-                    <button type="submit">ADD MANGA</button>
-                </form>
             </div>
         </div>
     </body>

@@ -3,7 +3,6 @@ function toggleUserMenu() {
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 }
 function logout() {
-    // Prima nascondiamo l'interfaccia utente
     const userContainer = document.querySelector('.user-container');
     const loginButton = `
         <a href="login" class="login-button">
@@ -16,16 +15,13 @@ function logout() {
         </a>
     `;
     
-    // Nascondiamo il dropdown menu se è aperto
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.style.display = 'none';
     }
     
-    // Sostituiamo il contenuto con il pulsante di login
     userContainer.innerHTML = loginButton;
     
-    // Facciamo la richiesta di logout
     fetch('./php/logout.php', { 
         method: 'POST',
         credentials: 'same-origin'

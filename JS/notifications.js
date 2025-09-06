@@ -1,0 +1,269 @@
+class NotificationSystem {
+    constructor() {
+        this.lastNotificationCount = 0;
+        this.notificationDropdown = null;
+        this.initNotifications();
+        this.startPolling();
+    }
+
+    initNotifications() {
+        this.createNotificationDropdown();
+
+        this.updateNotificationCount();
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.notification') && !e.target.closest('.notification-dropdown')) {
+                this.hideNotificationDropdown();
+            }
+        });
+    }
+
+    createNotificationDropdown() {
+        const notificationIcon = document.querySelector('.notification');
+        if (!notificationIcon) return;
+
+        const badge = document.createElement('span');
+        badge.className = 'notification-badge';
+        badge.style.cssText = `
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+            display: none;
+        `;
+        notificationIcon.appendChild(badge);
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'notification-dropdown';
+        dropdown.style.cssText = `
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+        `;
+
+        notificationIcon.parentNode.appendChild(dropdown);
+        this.notificationDropdown = dropdown;
+
+        notificationIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleNotificationDropdown();
+        });
+    }
+
+    async updateNotificationCount() {
+        try {
+            const response = await fetch('php/notifications_api.php?action=get_count');
+            const data = await response.json();
+            
+            if (data.success) {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                        badge.style.display = 'block';
+
+                        if (data.count > this.lastNotificationCount) {
+                            this.animateNotificationIcon();
+                        }
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                    
+                    this.lastNotificationCount = data.count;
+                }
+            }
+        } catch (error) {
+            console.error('Error recovering notifations count:', error);
+        }
+    }
+
+    async toggleNotificationDropdown() {
+        if (this.notificationDropdown.style.display === 'block') {
+            this.hideNotificationDropdown();
+        } else {
+            await this.showNotificationDropdown();
+        }
+    }
+
+    async showNotificationDropdown() {
+        await this.loadNotifications();
+        this.notificationDropdown.style.display = 'block';
+    }
+
+    hideNotificationDropdown() {
+        if (this.notificationDropdown) {
+            this.notificationDropdown.style.display = 'none';
+        }
+    }
+
+    async loadNotifications() {
+        try {
+            const response = await fetch('php/notifications_api.php?action=get_notifications');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.renderNotifications(data.notifications);
+            }
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+        }
+    }
+
+    renderNotifications(notifications) {
+        let html = `
+            <div style="padding: 15px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0; color: #fff; font-size: 16px;">Notifiche</h4>
+                <button onclick="notificationSystem.markAllAsRead()" style="background: none; border: none; color: #007bff; cursor: pointer; font-size: 12px;">
+                    Read all
+                </button>
+            </div>
+        `;
+
+        if (notifications.length === 0) {
+            html += `
+                <div style="padding: 20px; text-align: center; color: #888;">
+                    No notifications
+                </div>
+            `;
+        } else {
+            notifications.forEach(notification => {
+                const isUnread = !notification.is_read;
+                html += `
+                    <div class="notification-item" data-id="${notification.id}" style="
+                        padding: 12px 15px;
+                        border-bottom: 1px solid #333;
+                        cursor: pointer;
+                        background: ${isUnread ? '#1a1a1a' : 'transparent'};
+                        border-left: ${isUnread ? '3px solid #007bff' : '3px solid transparent'};
+                    " onclick="notificationSystem.handleNotificationClick(${notification.id}, ${notification.manga_id})">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="color: #fff; font-weight: ${isUnread ? 'bold' : 'normal'}; margin-bottom: 4px;">
+                                    ${notification.title}
+                                </div>
+                                <div style="color: #ccc; font-size: 13px; margin-bottom: 4px;">
+                                    ${notification.message}
+                                </div>
+                                ${notification.manga_title ? `
+                                    <div style="color: #007bff; font-size: 12px;">
+                                        ${notification.manga_title}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="color: #888; font-size: 11px; margin-left: 10px;">
+                                ${notification.time_ago}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        this.notificationDropdown.innerHTML = html;
+    }
+
+    async handleNotificationClick(notificationId, mangaId) {
+        await this.markAsRead(notificationId);
+
+        if (mangaId && window.location.pathname !== '/pending') {
+            window.location.href = 'pending';
+        }
+        
+        this.hideNotificationDropdown();
+    }
+
+    async markAsRead(notificationId) {
+        try {
+            const formData = new FormData();
+            formData.append('notification_id', notificationId);
+            
+            await fetch('php/notifications_api.php?action=mark_read', {
+                method: 'POST',
+                body: formData
+            });
+            
+            this.updateNotificationCount();
+        } catch (error) {
+            console.error('Error marking the notification as read:', error);
+        }
+    }
+
+    async markAllAsRead() {
+        try {
+            await fetch('php/notifications_api.php?action=mark_all_read', {
+                method: 'POST'
+            });
+            
+            this.updateNotificationCount();
+            this.loadNotifications();
+        } catch (error) {
+            console.error('Error marking all notifications as read:', error);
+        }
+    }
+
+    animateNotificationIcon() {
+        const icon = document.querySelector('.notification-icon');
+        if (icon) {
+            icon.style.animation = 'notificationPulse 0.5s ease-in-out';
+            setTimeout(() => {
+                icon.style.animation = '';
+            }, 500);
+        }
+    }
+
+    startPolling() {
+        setInterval(() => {
+            this.updateNotificationCount();
+        }, 30000);
+    }
+}
+
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes notificationPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    .notification {
+        position: relative;
+    }
+    
+    .notification-dropdown::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .notification-dropdown::-webkit-scrollbar-track {
+        background: #2a2a2a;
+    }
+    
+    .notification-dropdown::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 3px;
+    }
+    
+    .notification-item:hover {
+        background: #333 !important;
+    }
+`;
+document.head.appendChild(style);
+
+let notificationSystem;
+document.addEventListener('DOMContentLoaded', () => {
+    notificationSystem = new NotificationSystem();
+});
