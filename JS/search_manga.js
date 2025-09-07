@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('search', searchTerm);
 
-            fetch('php/search_manga.php', {
+            fetch('../php/search_manga.php', {
                 method: 'POST',
                 body: formData
             })

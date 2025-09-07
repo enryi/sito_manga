@@ -21,8 +21,9 @@
         case 'get_notifications':
             $notifications = getNotifications($conn, $user_id);
             $result = [];
-            
-            while ($row = $notifications->fetch_assoc()) {
+
+            // If getNotifications returns an array
+            foreach ($notifications as $row) {
                 $result[] = [
                     'id' => $row['id'],
                     'type' => $row['type'],
@@ -35,7 +36,7 @@
                     'time_ago' => timeAgo($row['created_at'])
                 ];
             }
-            
+
             echo json_encode(['success' => true, 'notifications' => $result]);
             break;
             
