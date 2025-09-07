@@ -209,13 +209,13 @@ function markNotificationAsRead($conn, $notification_id, $user_id) {
     return $result;
 }
 
-// MODIFIED: Now deletes all notifications instead of marking as read
+// MODIFIED: Now marks all notifications as read instead of deleting them
 function markAllNotificationsAsRead($conn, $user_id) {
-    $query = "DELETE FROM notifications WHERE user_id = ?";
+    $query = "UPDATE notifications SET is_read = 1 WHERE user_id = ?";
     
     $stmt = $conn->prepare($query);
     if (!$stmt) {
-        error_log("Failed to prepare delete all notifications query: " . $conn->error);
+        error_log("Failed to prepare mark all notifications as read query: " . $conn->error);
         return false;
     }
     
@@ -223,10 +223,10 @@ function markAllNotificationsAsRead($conn, $user_id) {
     $result = $stmt->execute();
     
     if ($result) {
-        $deletedCount = $stmt->affected_rows;
-        error_log("Successfully deleted $deletedCount notifications for user ID: $user_id");
+        $updatedCount = $stmt->affected_rows;
+        error_log("Successfully marked $updatedCount notifications as read for user ID: $user_id");
     } else {
-        error_log("Failed to delete notifications for user ID: $user_id - Error: " . $stmt->error);
+        error_log("Failed to mark notifications as read for user ID: $user_id - Error: " . $stmt->error);
     }
     
     $stmt->close();

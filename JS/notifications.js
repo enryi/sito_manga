@@ -53,8 +53,6 @@ class NotificationSystem {
             border: 1px solid #444;
             border-radius: 8px;
             width: 380px;
-            max-height: 400px;
-            overflow-y: auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 1001;
             display: none;
@@ -223,6 +221,13 @@ class NotificationSystem {
                 </div>
             `;
         } else {
+            // Create scrollable container for notifications
+            html += `<div class="notifications-container" style="
+                max-height: 300px;
+                overflow-y: auto;
+                overflow-x: hidden;
+            ">`;
+
             notifications.forEach(notification => {
                 const isUnread = !notification.is_read;
                 const notificationType = this.getNotificationTypeInfo(notification.type);
@@ -234,6 +239,7 @@ class NotificationSystem {
                         cursor: pointer;
                         background: ${isUnread ? '#1a1a1a' : 'transparent'};
                         border-left: ${isUnread ? `3px solid ${notificationType.color}` : '3px solid transparent'};
+                        opacity: ${isUnread ? '1' : '0.7'};
                     " onclick="notificationSystem.handleNotificationClick(${notification.id}, ${notification.manga_id || 'null'}, '${notification.type}')">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="flex: 1;">
@@ -266,6 +272,8 @@ class NotificationSystem {
                     </div>
                 `;
             });
+
+            html += `</div>`; // Close notifications-container
         }
 
         this.notificationDropdown.innerHTML = html;
@@ -380,17 +388,29 @@ style.textContent = `
         position: relative;
     }
     
-    .notification-dropdown::-webkit-scrollbar {
-        width: 6px;
+    .notification-dropdown .notifications-container::-webkit-scrollbar {
+        width: 4px;
     }
     
-    .notification-dropdown::-webkit-scrollbar-track {
-        background: #2a2a2a;
+    .notification-dropdown .notifications-container::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 2px;
     }
     
-    .notification-dropdown::-webkit-scrollbar-thumb {
-        background: #444;
-        border-radius: 3px;
+    .notification-dropdown .notifications-container::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 2px;
+        border: none;
+    }
+    
+    .notification-dropdown .notifications-container::-webkit-scrollbar-thumb:hover {
+        background: #666;
+    }
+    
+    /* For Firefox */
+    .notification-dropdown .notifications-container {
+        scrollbar-width: thin;
+        scrollbar-color: #555 transparent;
     }
     
     .notification-item:hover {
