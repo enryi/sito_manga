@@ -50,7 +50,7 @@
         $hashed_password = $row['password'];
 
         $stmt->close();
-        $stmt = $conn->prepare("SELECT 1 FROM admin WHERE user_id = ?");
+        $stmt = $conn->prepare("SELECT is_admin FROM users WHERE id = ?");
         if ($stmt === false) {
             $_SESSION['login_error'] = 'Admin check failed: ' . $conn->error;
             header("Location: ../login");

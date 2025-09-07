@@ -51,16 +51,48 @@
                 
                 if ($stmt->execute()) {
                     $manga_id = $conn->insert_id;
+                    error_log("Manga inserted successfully with ID: $manga_id");
 
-                    // Call notifyAllAdmins function from notification_functions.php
-                    $notification_type = 'manga_pending';
-                    $notification_title = $title; // manga title
-                    $notification_message = "New manga '$title' needs approval";
-                    
-                    if (notifyAllAdmins($conn, $notification_type, $notification_title, $notification_message, $manga_id)) {
-                        error_log("Notifications sent successfully for manga: $title");
+                    // Check if we have admin users first
+                    $adminCheckQuery = "SELECT COUNT(*) as admin_count FROM users WHERE is_admin = 1";
+                    $adminCheckResult = $conn->query($adminCheckQuery);
+                    $adminCount = $adminCheckResult->fetch_assoc()['admin_count'];
+                    error_log("Number of admin users found: $adminCount");
+
+                    if ($adminCount > 0) {
+                        // Call notifyAllAdmins function from notification_functions.php
+                        $notification_type = 'manga_pending';
+                        $notification_title = $title; // manga title
+                        $notification_message = "New manga '$title' needs approval";
+                        
+                        error_log("Attempting to send notifications for manga: $title");
+                        
+                        if (notifyAllAdmins($conn, $notification_type, $notification_title, $notification_message, $manga_id)) {
+                            error_log("Notifications sent successfully for manga: $title");
+                            
+                            // Verify notifications were created
+                            $verifyQuery = "SELECT COUNT(*) as notification_count FROM notifications WHERE manga_id = ?";
+                            $verifyStmt = $conn->prepare($verifyQuery);
+                            if ($verifyStmt) {
+                                $verifyStmt->bind_param("i", $manga_id);
+                                $verifyStmt->execute();
+                                $verifyResult = $verifyStmt->get_result();
+                                if ($verifyResult) {
+                                    $verifyRow = $verifyResult->fetch_assoc();
+                                    $notificationCount = $verifyRow['notification_count'];
+                                    error_log("Notifications created in database: $notificationCount");
+                                } else {
+                                    error_log("Failed to get verification result: " . $verifyStmt->error);
+                                }
+                                $verifyStmt->close();
+                            } else {
+                                error_log("Failed to prepare verification query: " . $conn->error);
+                            }
+                        } else {
+                            error_log("Failed to send notifications for manga: $title");
+                        }
                     } else {
-                        error_log("Failed to send notifications for manga: $title");
+                        error_log("No admin users found - notifications not sent");
                     }
 
                     $redirectPath = isset($_SESSION['current_path']) ? $_SESSION['current_path'] : 'localhost';
@@ -69,6 +101,7 @@
                 } else {
                     // If database insert fails, delete the uploaded image
                     unlink($uploadFile);
+                    error_log("Failed to insert manga: " . $stmt->error);
                     echo json_encode(['success' => false, 'message' => 'Failed to add manga.']);
                     echo "<script>console.error('Failed to add manga.');</script>";
                     header("Location: ../pending");
@@ -77,16 +110,19 @@
                 $stmt->close();
                 $conn->close();
             } else {
+                error_log("Failed to move uploaded file");
                 echo json_encode(['success' => false, 'message' => 'Failed to upload image.']);
                 echo "<script>console.error('Failed to upload image.');</script>";
                 header("Location: ../pending");
             }
         } else {
+            error_log("No image uploaded or upload error. Error code: " . ($_FILES['manga-image']['error'] ?? 'No file'));
             echo json_encode(['success' => false, 'message' => 'No image uploaded or upload error.']);
             echo "<script>console.error('No image uploaded or upload error.');</script>";
             header("Location: ../pending");
         }
     } else {
+        error_log("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
         echo "<script>console.error('Error: Invalid request.');</script>";
         header("Location: ../pending");
         exit();
