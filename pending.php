@@ -104,8 +104,7 @@
             function closeMangaPopup(mangaId) {
                 document.getElementById('manga-popup-' + mangaId).style.display = 'none';
             }
-            
-            // Reason modal functions
+
             function openReasonModal(mangaId, mangaTitle) {
                 document.getElementById('reasonModal').style.display = 'block';
                 document.getElementById('reasonMangaId').value = mangaId;
@@ -145,8 +144,7 @@
                 document.body.appendChild(form);
                 form.submit();
             }
-            
-            // Close modal when clicking outside
+
             window.onclick = function(event) {
                 const modal = document.getElementById('reasonModal');
                 if (event.target == modal) {
@@ -276,8 +274,7 @@
                     $conn->close();
                 ?>
         </div>
-        
-        <!-- Reason Modal -->
+
         <div id="reasonModal" class="reason-modal">
             <div class="reason-modal-content">
                 <span class="reason-close" onclick="closeReasonModal()">&times;</span>
@@ -290,6 +287,37 @@
                     <button type="button" class="btn btn-danger" onclick="submitDisapproval()">Disapprove</button>
                 </div>
                 <input type="hidden" id="reasonMangaId" value="">
+            </div>
+        </div>
+
+        <div id="add-manga-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn" onclick="closeAddMangaPopup()">&times;</span>
+                <h5>ADD NEW MANGA</h5>
+                <form id="add-manga-form" method="post" action="php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
+                    <label for="manga-title">TITLE:</label>
+                    <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
+                    
+                    <label for="manga-image">UPLOAD IMAGE:</label>
+                    <input type="file" id="manga-image" name="manga-image" accept="image/*" required>
+                    
+                    <label for="manga-description">DESCRIPTION:</label>
+                    <input type="text" id="manga-description" name="manga-description" placeholder="Description" required>
+                    
+                    <label for="manga-author">AUTHOR:</label>
+                    <input type="text" id="manga-author" name="manga-author" placeholder="Author" required>
+                    
+                    <label for="manga-type">TYPE:</label>
+                    <select id="manga-type" name="manga-type" required>
+                        <option value="" disabled selected>Type</option>
+                        <option value="Manga">Manga</option>
+                        <option value="Manwha">Manwha</option>
+                        <option value="Manhua">Manhua</option>
+                    </select>
+                    <label for="manga-genre">GENRE:</label>
+                    <input type="text" id="manga-genre" name="manga-genre" placeholder="Genre" required>
+                    <button type="submit">ADD MANGA</button>
+                </form>
             </div>
         </div>
     </body>

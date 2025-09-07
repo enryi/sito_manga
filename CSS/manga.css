@@ -7,6 +7,7 @@
     padding: 10px 20px;
     position: relative;
 }
+
 .manga-container {
     display: flex;
     justify-content: space-between;
@@ -14,12 +15,14 @@
     margin: 0 auto;
     gap: 20px;
 }
+
 .left-column {
     display: flex;
     flex-direction: column;
     flex: 2;
     gap: 20px;
 }
+
 .popular-manga-container,
 .latest-manga-container {
     gap: 38px;
@@ -29,6 +32,7 @@
     border: 1px solid #444;
     width: 100%;
 }
+
 .top-manga-container {
     flex: 1;
     padding: 20px;
@@ -37,6 +41,7 @@
     border: 1px solid #444;
     height: 100%;
 }
+
 .manga-popular-list {
     width: 100%;
     display: flex;
@@ -46,6 +51,7 @@
     margin-top: 15px;
     padding: 0 10px;
 }
+
 .manga-latest-list {
     width: 100%;
     display: flex;
@@ -55,6 +61,7 @@
     margin-top: 10px;
     padding: 0;
 }
+
 .manga-top-list {
     width: 100%;
     display: flex;
@@ -63,6 +70,7 @@
     margin-top: 15px;
     padding: 0;
 }
+
 .manga-series-list {
     width: 100%;
     display: flex;
@@ -71,6 +79,7 @@
     margin-top: 15px;
     padding: 0;
 }
+
 .manga-item {
     flex: 0 0 calc(25% - 15px);
     max-width: calc(25% - 15px);
@@ -80,6 +89,7 @@
     color: #fff;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .manga-item-fake {
     flex: 0 1 calc(25% - 20px);
     max-width: calc(25% - 20px);
@@ -90,27 +100,33 @@
     color: #fff;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .manga-item {
     cursor: pointer;
 }
+
 .manga-item img {
     width: 100%;
     height: 200px;
     border-radius: 8px;
     margin-bottom: 10px;
 }
+
 .manga-item:hover {
     transform: none;
     box-shadow: none;
 }
+
 .manga-item:hover img {
     filter: brightness(0.7);
     transition: filter 0.3s ease;
 }
+
 .manga-item:hover .manga-title {
     color: #ffc107;
     transition: color 0.3s ease;
 }
+
 .manga-title {
     font-size: 13.3px;
     font-weight: 700;
@@ -124,44 +140,52 @@
     display: block;
     padding-bottom: 2px;
 }
+
 .manga-rating-container {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     margin-top: 5px;
 }
+
 .stars {
     margin-right: 5px;
     display: flex;
     align-items: center;
 }
+
 .manga-star {
     height: 20px;
     width: 20px;
     color: yellow;
     fill: yellow;
 }
+
 .manga-rating {
     font-size: 14px;
     color: #ffc107;
     font-weight: bold;
     margin-bottom: 0px;
 }
+
 .rating, .author {
     font-size: 14px;
     color: #ccc;
 }
+
 .no-data {
     font-size: 18px;
     color: #ccc;
     text-align: center;
     font-style: italic;
 }
+
 .divider {
     height: 1px;
     background-color: #fff;
     margin: 5px 0;
 }
+
 .toggle-description {
     background: none;
     border: none;
@@ -171,12 +195,14 @@
     text-decoration: underline;
     padding: 0;
 }
+
 .approval-buttons {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 10px;
 }
+
 .approval-buttons .btn {
     padding: 8px 15px;
     font-size: 14px;
@@ -184,19 +210,23 @@
     cursor: pointer;
     transition: background-color 0.3s ease, opacity 0.3s ease;
 }
+
 .approval-buttons .btn-success {
     background-color: #28a745;
     color: #fff;
     border: none;
 }
+
 .approval-buttons .btn-danger {
     background-color: #dc3545;
     color: #fff;
     border: none;
 }
+
 .approval-buttons .btn:hover {
     opacity: 0.9;
 }
+
 .top-manga-item.first {
     position: relative;
     width: 100%;
@@ -209,6 +239,7 @@
     overflow: hidden;
     border-radius: 8px;
 }
+
 .top-manga-item.first::before {
     content: '';
     position: absolute;
@@ -219,6 +250,7 @@
     background: rgba(0, 0, 0, 0.5);
     z-index: 1;
 }
+
 .top-manga-item.first img {
     width: 100%;
     height: 100%;
@@ -226,6 +258,7 @@
     object-position: center;
     z-index: 0;
 }
+
 .top-manga-item.first .info {
     position: absolute;
     bottom: 10px;
@@ -236,6 +269,7 @@
     align-items: flex-start;
     z-index: 2;
 }
+
 .top-manga-item.first .rank {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 5px 10px;
@@ -245,12 +279,14 @@
     margin-bottom: 5px;
     z-index: 2;
 }
+
 .top-manga-item.first .manga-title {
     font-size: 18px;
     font-weight: bold;
     margin: 5px 0;
     z-index: 2;
 }
+
 .top-manga-item.first .manga-rating {
     font-size: 14px;
     color: #ffc107;
@@ -259,6 +295,7 @@
     gap: 5px;
     z-index: 2;
 }
+
 .top-manga-item {
     display: flex;
     align-items: center;
@@ -267,6 +304,7 @@
     position: relative;
     width: 100%;
 }
+
 .top-manga-item .rank {
     width: 30px;
     height: 30px;
@@ -279,6 +317,7 @@
     border-radius: 3px;
     margin-right: 15px;
 }
+
 .top-manga-item .image-container {
     width: 60px;
     height: 80px;
@@ -287,14 +326,17 @@
     justify-content: center;
     margin-right: 15px;
 }
+
 .top-manga-item .image-container img {
     width: 100%;
     height: 100%;
     border-radius: 3px;
 }
+
 .top-manga-item:hover {
     cursor: pointer;
 }
+
 .top-manga-item .info {
     flex: 1;
     display: flex;
@@ -302,30 +344,35 @@
     justify-content: space-between;
     height: 80px;
 }
+
 .top-manga-item .manga-title {
     font-size: 16px;
     font-weight: bold;
     color: #fff;
     margin-bottom: 5px;
 }
+
 .top-manga-item {
     font-size: 14px;
     color: #888;
     text-align: left;
     margin-bottom: 5px;
 }
+
 .top-manga-item .manga-rating {
     display: flex;
     align-items: center;
     font-size: 14px;
     color: #ffc107;
 }
+
 .top-manga-item .manga-rating .manga-star {
     margin-left: 0px;
     width: 16px;
     height: 16px;
     margin-right: 0px;
 }
+
 .popup {
     position: fixed;
     top: 50%;
@@ -339,6 +386,7 @@
     padding: 20px;
     display: none;
 }
+
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -349,6 +397,7 @@
     z-index: 999;
     display: none;
 }
+
 .popup h5 {
     font-size: 18px;
     font-weight: bold;
@@ -356,6 +405,7 @@
     text-align: center;
     color: #fff; 
 }
+
 .popup .close-btn {
     position: absolute;
     top: 10px;
@@ -367,9 +417,11 @@
     cursor: pointer;
     transition: color 0.3s ease;
 }
+
 .popup .close-btn:hover {
     color: #ffc107;
 }
+
 .popup input[type="text"],
 .popup input[type="file"],
 .popup textarea {
@@ -382,6 +434,7 @@
     color: #fff;
     font-size: 14px;
 }
+
 .popup button[type="submit"] {
     width: 100%;
     padding: 10px;
@@ -393,6 +446,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 .popup button[type="submit"]:hover {
     background-color: #218838;
 }

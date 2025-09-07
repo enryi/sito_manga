@@ -7,6 +7,7 @@ class NotificationSystem {
     }
 
     initNotifications() {
+        console.log('Initializing notification system...');
         this.createNotificationDropdown();
         this.updateNotificationCount();
 
@@ -19,7 +20,12 @@ class NotificationSystem {
 
     createNotificationDropdown() {
         const notificationIcon = document.querySelector('.notification');
-        if (!notificationIcon) return;
+        console.log('Notification icon found:', notificationIcon);
+        
+        if (!notificationIcon) {
+            console.error('Notification icon not found!');
+            return;
+        }
 
         const badge = document.createElement('span');
         badge.className = 'notification-badge';
@@ -56,20 +62,43 @@ class NotificationSystem {
 
         notificationIcon.parentNode.appendChild(dropdown);
         this.notificationDropdown = dropdown;
+        console.log('Notification dropdown created:', dropdown);
 
         notificationIcon.addEventListener('click', (e) => {
             e.stopPropagation();
+            console.log('Notification icon clicked');
             this.toggleNotificationDropdown();
         });
     }
 
     async updateNotificationCount() {
+        console.log('Updating notification count...');
         try {
             const response = await fetch('php/notifications_api.php?action=get_count');
-            const data = await response.json();
+            console.log('Count response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+            
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Response text:', responseText);
+                return;
+            }
+            
+            console.log('Count data:', data);
             
             if (data.success) {
                 const badge = document.querySelector('.notification-badge');
+                console.log('Badge element:', badge);
+                
                 if (badge) {
                     if (data.count > 0) {
                         badge.textContent = data.count > 99 ? '99+' : data.count;
@@ -84,13 +113,17 @@ class NotificationSystem {
                     
                     this.lastNotificationCount = data.count;
                 }
+            } else {
+                console.error('API returned success: false', data);
             }
         } catch (error) {
-            console.error('Error recovering notifications count:', error);
+            console.error('Error fetching notifications count:', error);
         }
     }
 
     async toggleNotificationDropdown() {
+        console.log('Toggling notification dropdown, current display:', this.notificationDropdown.style.display);
+        
         if (this.notificationDropdown.style.display === 'block') {
             this.hideNotificationDropdown();
         } else {
@@ -99,30 +132,81 @@ class NotificationSystem {
     }
 
     async showNotificationDropdown() {
+        console.log('Showing notification dropdown...');
         await this.loadNotifications();
         this.notificationDropdown.style.display = 'block';
+        console.log('Dropdown should now be visible');
     }
 
     hideNotificationDropdown() {
         if (this.notificationDropdown) {
             this.notificationDropdown.style.display = 'none';
+            console.log('Dropdown hidden');
         }
     }
 
     async loadNotifications() {
+        console.log('Loading notifications...');
         try {
             const response = await fetch('php/notifications_api.php?action=get_notifications');
-            const data = await response.json();
+            console.log('Notifications response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const responseText = await response.text();
+            console.log('Raw notifications response:', responseText);
+            
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Response text:', responseText);
+                this.renderErrorInDropdown('Error parsing response');
+                return;
+            }
+            
+            console.log('Notifications data:', data);
             
             if (data.success) {
+                console.log('Number of notifications:', data.notifications.length);
                 this.renderNotifications(data.notifications);
+            } else {
+                console.error('API returned success: false', data);
+                this.renderErrorInDropdown('API error: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
             console.error('Error loading notifications:', error);
+            this.renderErrorInDropdown('Network error: ' + error.message);
         }
     }
 
+    renderErrorInDropdown(errorMessage) {
+        if (!this.notificationDropdown) {
+            console.error('Dropdown not found for error rendering');
+            return;
+        }
+        
+        this.notificationDropdown.innerHTML = `
+            <div style="padding: 15px; border-bottom: 1px solid #444;">
+                <h4 style="margin: 0; color: #fff; font-size: 16px;">Notifiche</h4>
+            </div>
+            <div style="padding: 20px; text-align: center; color: #ff6b6b;">
+                Error: ${errorMessage}
+            </div>
+        `;
+    }
+
     renderNotifications(notifications) {
+        console.log('Rendering notifications:', notifications);
+        
+        if (!this.notificationDropdown) {
+            console.error('Dropdown not found for rendering');
+            return;
+        }
+        
         let html = `
             <div style="padding: 15px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center;">
                 <h4 style="margin: 0; color: #fff; font-size: 16px;">Notifiche</h4>
@@ -135,7 +219,7 @@ class NotificationSystem {
         if (notifications.length === 0) {
             html += `
                 <div style="padding: 20px; text-align: center; color: #888;">
-                    No notifications
+                    Nessuna notifica
                 </div>
             `;
         } else {
@@ -150,7 +234,7 @@ class NotificationSystem {
                         cursor: pointer;
                         background: ${isUnread ? '#1a1a1a' : 'transparent'};
                         border-left: ${isUnread ? `3px solid ${notificationType.color}` : '3px solid transparent'};
-                    " onclick="notificationSystem.handleNotificationClick(${notification.id}, ${notification.manga_id}, '${notification.type}')">
+                    " onclick="notificationSystem.handleNotificationClick(${notification.id}, ${notification.manga_id || 'null'}, '${notification.type}')">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="flex: 1;">
                                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
@@ -185,6 +269,7 @@ class NotificationSystem {
         }
 
         this.notificationDropdown.innerHTML = html;
+        console.log('Notifications rendered successfully');
     }
 
     getNotificationTypeInfo(type) {
@@ -192,38 +277,35 @@ class NotificationSystem {
             case 'manga_pending':
                 return { 
                     icon: '⏳', 
-                    color: '#ffc107' // Warning yellow
+                    color: '#ffc107'
                 };
             case 'manga_approved':
                 return { 
                     icon: '✅', 
-                    color: '#28a745' // Success green
+                    color: '#28a745'
                 };
             case 'manga_disapproved':
                 return { 
                     icon: '❌', 
-                    color: '#dc3545' // Danger red
+                    color: '#dc3545'
                 };
             default:
                 return { 
                     icon: '📢', 
-                    color: '#007bff' // Default blue
+                    color: '#007bff'
                 };
         }
     }
 
     async handleNotificationClick(notificationId, mangaId, type) {
+        console.log('Notification clicked:', { notificationId, mangaId, type });
         await this.markAsRead(notificationId);
 
-        // Different actions based on notification type
         if (type === 'manga_pending' && mangaId && window.location.pathname !== '/pending') {
             window.location.href = 'pending';
         } else if (type === 'manga_approved' && mangaId) {
-            // Could redirect to the approved manga page
-            // For now, just close the dropdown
             console.log('Manga approved notification clicked');
         } else if (type === 'manga_disapproved') {
-            // Just show the notification (reason is already displayed)
             console.log('Manga disapproved notification clicked');
         }
         
@@ -231,14 +313,19 @@ class NotificationSystem {
     }
 
     async markAsRead(notificationId) {
+        console.log('Marking notification as read:', notificationId);
         try {
             const formData = new FormData();
             formData.append('notification_id', notificationId);
             
-            await fetch('php/notifications_api.php?action=mark_read', {
+            const response = await fetch('php/notifications_api.php?action=mark_read', {
                 method: 'POST',
                 body: formData
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             
             this.updateNotificationCount();
         } catch (error) {
@@ -247,10 +334,15 @@ class NotificationSystem {
     }
 
     async markAllAsRead() {
+        console.log('Marking all notifications as read');
         try {
-            await fetch('php/notifications_api.php?action=mark_all_read', {
+            const response = await fetch('php/notifications_api.php?action=mark_all_read', {
                 method: 'POST'
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             
             this.updateNotificationCount();
             this.loadNotifications();
@@ -272,7 +364,7 @@ class NotificationSystem {
     startPolling() {
         setInterval(() => {
             this.updateNotificationCount();
-        }, 30000); // Check every 30 seconds
+        }, 30000);
     }
 }
 
@@ -316,5 +408,6 @@ document.head.appendChild(style);
 
 let notificationSystem;
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing notification system');
     notificationSystem = new NotificationSystem();
 });

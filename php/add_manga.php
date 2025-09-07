@@ -9,6 +9,17 @@
         $type = $_POST['manga-type'];
         $genre = $_POST['manga-genre'];
         
+        // Get the user ID who is submitting the manga
+        $submitted_by = isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : null;
+        
+        // Debug logging
+        error_log("DEBUG: Session user_id = " . var_export($_SESSION['user_id'] ?? 'NOT SET', true));
+        error_log("DEBUG: submitted_by = " . var_export($submitted_by, true));
+        
+        if ($submitted_by === null) {
+            error_log("ERROR: No user_id in session - user might not be logged in");
+        }
+        
         if (!in_array($type, ['Manga', 'Manwha', 'Manhua'])) {
             die("Invalid type: $type");
         }
@@ -46,12 +57,32 @@
                     die("Connection failed: " . $conn->connect_error);
                 }
                 
-                $stmt = $conn->prepare("INSERT INTO manga (title, image_url, description, author, type, genre, approved) VALUES (?, ?, ?, ?, ?, ?, 0)");
-                $stmt->bind_param("ssssss", $title, $imageUrl, $description, $author, $type, $genre);
+                // Debug: Show what we're about to insert
+                error_log("DEBUG: About to insert manga with submitted_by = " . var_export($submitted_by, true));
+                
+                // Fixed SQL query - remove the user_id column since it's not being used
+                $stmt = $conn->prepare("INSERT INTO manga (title, image_url, description, author, type, genre, approved, submitted_by) VALUES (?, ?, ?, ?, ?, ?, 0, ?)");
+                
+                if (!$stmt) {
+                    error_log("ERROR: Failed to prepare statement: " . $conn->error);
+                    die("Database error occurred");
+                }
+                
+                // Bind parameters correctly
+                $stmt->bind_param("ssssssi", $title, $imageUrl, $description, $author, $type, $genre, $submitted_by);
                 
                 if ($stmt->execute()) {
                     $manga_id = $conn->insert_id;
-                    error_log("Manga inserted successfully with ID: $manga_id");
+                    error_log("SUCCESS: Manga inserted with ID: $manga_id, submitted_by: $submitted_by");
+
+                    // Verify the insertion
+                    $verifyStmt = $conn->prepare("SELECT submitted_by FROM manga WHERE id = ?");
+                    $verifyStmt->bind_param("i", $manga_id);
+                    $verifyStmt->execute();
+                    $verifyResult = $verifyStmt->get_result();
+                    $verifyRow = $verifyResult->fetch_assoc();
+                    error_log("VERIFY: submitted_by in database = " . var_export($verifyRow['submitted_by'], true));
+                    $verifyStmt->close();
 
                     // Check if we have admin users first
                     $adminCheckQuery = "SELECT COUNT(*) as admin_count FROM users WHERE is_admin = 1";
@@ -69,25 +100,6 @@
                         
                         if (notifyAllAdmins($conn, $notification_type, $notification_title, $notification_message, $manga_id)) {
                             error_log("Notifications sent successfully for manga: $title");
-                            
-                            // Verify notifications were created
-                            $verifyQuery = "SELECT COUNT(*) as notification_count FROM notifications WHERE manga_id = ?";
-                            $verifyStmt = $conn->prepare($verifyQuery);
-                            if ($verifyStmt) {
-                                $verifyStmt->bind_param("i", $manga_id);
-                                $verifyStmt->execute();
-                                $verifyResult = $verifyStmt->get_result();
-                                if ($verifyResult) {
-                                    $verifyRow = $verifyResult->fetch_assoc();
-                                    $notificationCount = $verifyRow['notification_count'];
-                                    error_log("Notifications created in database: $notificationCount");
-                                } else {
-                                    error_log("Failed to get verification result: " . $verifyStmt->error);
-                                }
-                                $verifyStmt->close();
-                            } else {
-                                error_log("Failed to prepare verification query: " . $conn->error);
-                            }
                         } else {
                             error_log("Failed to send notifications for manga: $title");
                         }
@@ -95,7 +107,7 @@
                         error_log("No admin users found - notifications not sent");
                     }
 
-                    $redirectPath = isset($_SESSION['current_path']) ? $_SESSION['current_path'] : 'localhost';
+                    $redirectPath = isset($_SESSION['current_path']) ? $_SESSION['current_path'] : '/';
                     header("Location: $redirectPath");
                     exit();
                 } else {
@@ -103,7 +115,6 @@
                     unlink($uploadFile);
                     error_log("Failed to insert manga: " . $stmt->error);
                     echo json_encode(['success' => false, 'message' => 'Failed to add manga.']);
-                    echo "<script>console.error('Failed to add manga.');</script>";
                     header("Location: ../pending");
                 }
                 
@@ -112,13 +123,11 @@
             } else {
                 error_log("Failed to move uploaded file");
                 echo json_encode(['success' => false, 'message' => 'Failed to upload image.']);
-                echo "<script>console.error('Failed to upload image.');</script>";
                 header("Location: ../pending");
             }
         } else {
             error_log("No image uploaded or upload error. Error code: " . ($_FILES['manga-image']['error'] ?? 'No file'));
             echo json_encode(['success' => false, 'message' => 'No image uploaded or upload error.']);
-            echo "<script>console.error('No image uploaded or upload error.');</script>";
             header("Location: ../pending");
         }
     } else {
