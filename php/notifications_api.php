@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// Database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -11,6 +12,7 @@ if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Database connection failed']));
 }
 
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     die(json_encode(['success' => false, 'message' => 'User not logged in']));
 }
@@ -57,6 +59,7 @@ switch ($action) {
 
 $conn->close();
 
+// Helper function to get notifications with time ago
 function getNotificationsWithTimeAgo($conn, $user_id) {
     $query = "SELECT *, 
               CASE 
@@ -206,17 +209,53 @@ function markNotificationAsRead($conn, $notification_id, $user_id) {
     return $result;
 }
 
+// MODIFIED: Now deletes all notifications instead of marking as read
 function markAllNotificationsAsRead($conn, $user_id) {
-    $query = "UPDATE notifications SET is_read = 1 WHERE user_id = ?";
+    $query = "DELETE FROM notifications WHERE user_id = ?";
     
     $stmt = $conn->prepare($query);
     if (!$stmt) {
-        error_log("Failed to prepare mark all notifications query: " . $conn->error);
+        error_log("Failed to prepare delete all notifications query: " . $conn->error);
         return false;
     }
     
     $stmt->bind_param("i", $user_id);
     $result = $stmt->execute();
+    
+    if ($result) {
+        $deletedCount = $stmt->affected_rows;
+        error_log("Successfully deleted $deletedCount notifications for user ID: $user_id");
+    } else {
+        error_log("Failed to delete notifications for user ID: $user_id - Error: " . $stmt->error);
+    }
+    
+    $stmt->close();
+    
+    return $result;
+}
+
+// NEW FUNCTION: Delete a specific notification
+function deleteNotification($conn, $notification_id, $user_id) {
+    $query = "DELETE FROM notifications WHERE id = ? AND user_id = ?";
+    
+    $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Failed to prepare delete notification query: " . $conn->error);
+        return false;
+    }
+    
+    $stmt->bind_param("ii", $notification_id, $user_id);
+    $result = $stmt->execute();
+    
+    if ($result) {
+        $deletedCount = $stmt->affected_rows;
+        if ($deletedCount > 0) {
+            error_log("Successfully deleted notification ID: $notification_id for user ID: $user_id");
+        } else {
+            error_log("No notification found to delete with ID: $notification_id for user ID: $user_id");
+        }
+    }
+    
     $stmt->close();
     
     return $result;
