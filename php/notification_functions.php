@@ -1,15 +1,16 @@
 <?php
-    function createNotification($conn, $user_id, $type, $title, $message, $manga_id = null) {
+    function createNotification($conn, $user_id, $type, $title, $message, $manga_id = null, $reason = null) {
         $query = "INSERT INTO notifications (
             user_id, 
             manga_id, 
             manga_title, 
             type, 
             title,
-            message, 
+            message,
+            reason,
             is_read, 
             created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())";
         
         $stmt = $conn->prepare($query);
         if (!$stmt) {
@@ -17,7 +18,7 @@
             return false;
         }
         
-        $stmt->bind_param("iissss", $user_id, $manga_id, $title, $type, $title, $message);
+        $stmt->bind_param("iisssss", $user_id, $manga_id, $title, $type, $title, $message, $reason);
         $result = $stmt->execute();
         
         if (!$result) {
@@ -29,7 +30,6 @@
     }
 
     function notifyAllAdmins($conn, $type, $title, $message, $manga_id = null) {
-        // First, let's check if we have admin users
         $adminQuery = "SELECT id FROM users WHERE is_admin = 1";
         $result = $conn->query($adminQuery);
         
@@ -44,20 +44,19 @@
         }
         
         $success = true;
-        $admin_count = 0;
-        
         while ($admin = $result->fetch_assoc()) {
-            $admin_count++;
             if (!createNotification($conn, $admin['id'], $type, $title, $message, $manga_id)) {
                 $success = false;
                 error_log("Failed to create notification for admin ID: " . $admin['id']);
-            } else {
-                error_log("Notification created successfully for admin ID: " . $admin['id']);
             }
         }
         
-        error_log("Total admin users found: " . $admin_count);
         return $success;
+    }
+
+    function notifyUserAboutMangaStatus($conn, $user_id, $type, $manga_title, $message, $manga_id = null, $reason = null) {
+        $title = $type === 'manga_approved' ? "Manga Approved: $manga_title" : "Manga Disapproved: $manga_title";
+        return createNotification($conn, $user_id, $type, $title, $message, $manga_id, $reason);
     }
 
     function getNotifications($conn, $user_id) {

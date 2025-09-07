@@ -1,30 +1,46 @@
+
 <?php
     session_start();
+    require_once 'notification_functions.php';
+    
     $servername = "localhost";
     $username = "root";
     $password = "";
     $dbname = "manga";
     $conn = new mysqli($servername, $username, $password, $dbname);
+    
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
+    
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mangaId = intval($_POST['manga_id']);
         $description = $conn->real_escape_string($_POST['description']);
-        $query = "UPDATE manga SET description = '$description', approved = 1 WHERE id = $mangaId";
-        if ($conn->query($query) === TRUE) {
-            $mangaQuery = "SELECT title, image_url, description, author, type, genre FROM manga WHERE id = $mangaId";
-            $mangaResult = $conn->query($mangaQuery);
-            if ($mangaResult && $mangaResult->num_rows > 0) {
-                $manga = $mangaResult->fetch_assoc();
+
+        $mangaQuery = "SELECT title, image_url, description, author, type, genre, submitted_by FROM manga WHERE id = ?";
+        $mangaStmt = $conn->prepare($mangaQuery);
+        $mangaStmt->bind_param("i", $mangaId);
+        $mangaStmt->execute();
+        $mangaResult = $mangaStmt->get_result();
+        
+        if ($mangaResult && $mangaResult->num_rows > 0) {
+            $manga = $mangaResult->fetch_assoc();
+            $submitted_by = $manga['submitted_by'];
+            $manga_title = $manga['title'];
+
+            $query = "UPDATE manga SET description = ?, approved = 1 WHERE id = ?";
+            $updateStmt = $conn->prepare($query);
+            $updateStmt->bind_param("si", $description, $mangaId);
+            
+            if ($updateStmt->execute()) {
                 $title = htmlspecialchars($manga['title'], ENT_QUOTES, 'UTF-8');
                 $imageUrl = htmlspecialchars($manga['image_url'], ENT_QUOTES, 'UTF-8');
-                $description = htmlspecialchars($manga['description'], ENT_QUOTES, 'UTF-8');
                 $author = htmlspecialchars($manga['author'], ENT_QUOTES, 'UTF-8');
                 $type = htmlspecialchars($manga['type'], ENT_QUOTES, 'UTF-8');
                 $genre = htmlspecialchars($manga['genre'], ENT_QUOTES, 'UTF-8');
                 $filename = strtolower(str_replace(' ', '_', $title)) . '.php';
                 $filePath = "../series/$filename";
+                
                 if (!is_dir("../series")) {
                     mkdir("../series", 0777, true);
                 }
@@ -309,22 +325,35 @@
 PHP;
                 
                 if (file_put_contents($filePath, $pageContent) !== false) {
-                    echo "Manga approved and dedicated page created successfully: <a href='$filePath'>$title</a>";
+                    error_log("Manga approved and page created successfully: $title");
+                    
+                    if ($submitted_by) {
+                        $approval_message = "Great news! Your manga '$manga_title' has been approved and is now live on the site.";
+                        if (notifyUserAboutMangaStatus($conn, $submitted_by, 'manga_approved', $manga_title, $approval_message, $mangaId)) {
+                            error_log("Approval notification sent to user ID: $submitted_by");
+                        } else {
+                            error_log("Failed to send approval notification to user ID: $submitted_by");
+                        }
+                    }
+                    
+                    $deleteNotifQuery = "DELETE FROM notifications WHERE manga_id = ? AND type = 'manga_pending'";
+                    $deleteStmt = $conn->prepare($deleteNotifQuery);
+                    $deleteStmt->bind_param("i", $mangaId);
+                    $deleteStmt->execute();
+                    
                 } else {
-                    echo "Error creating the dedicated page.";
+                    error_log("Error creating the dedicated page for: $title");
                 }
             } else {
-                echo "Error fetching manga details.";
+                error_log("Error approving manga: " . $conn->error);
             }
         } else {
-            echo "Error: " . $conn->error;
+            error_log("Error fetching manga details for ID: $mangaId");
         }
     }
+    
     $queryCheck = "SELECT COUNT(*) AS pending_count FROM manga WHERE approved = 0";
     $resultCheck = $conn->query($queryCheck);
-    if (!$resultCheck) {
-        die("Error executing check query: " . $conn->error);
-    }
     $rowCheck = $resultCheck->fetch_assoc();
     $conn->close();
 

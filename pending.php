@@ -33,6 +33,59 @@
         <script src="JS/user.js"></script>
         <script src="JS/search.js"></script>
         <script src="JS/notifications.js"></script>
+        <style>
+            .reason-modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.4);
+            }
+            .reason-modal-content {
+                background-color: #2a2a2a;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #444;
+                border-radius: 8px;
+                width: 50%;
+                max-width: 500px;
+                color: #fff;
+            }
+            .reason-close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            .reason-close:hover,
+            .reason-close:focus {
+                color: #fff;
+                text-decoration: none;
+            }
+            .reason-textarea {
+                width: 100%;
+                min-height: 100px;
+                background-color: #333;
+                border: 1px solid #555;
+                border-radius: 4px;
+                color: #fff;
+                padding: 10px;
+                margin: 10px 0;
+                resize: vertical;
+            }
+            .reason-buttons {
+                text-align: right;
+                margin-top: 15px;
+            }
+            .reason-buttons button {
+                margin-left: 10px;
+            }
+        </style>
         <script>
             function toggleDescription(button) {
                 const mangaItem = button.closest('.manga-item');
@@ -51,10 +104,59 @@
             function closeMangaPopup(mangaId) {
                 document.getElementById('manga-popup-' + mangaId).style.display = 'none';
             }
+            
+            // Reason modal functions
+            function openReasonModal(mangaId, mangaTitle) {
+                document.getElementById('reasonModal').style.display = 'block';
+                document.getElementById('reasonMangaId').value = mangaId;
+                document.getElementById('reasonMangaTitle').textContent = mangaTitle;
+                document.getElementById('reasonText').value = '';
+            }
+            
+            function closeReasonModal() {
+                document.getElementById('reasonModal').style.display = 'none';
+            }
+            
+            function submitDisapproval() {
+                const mangaId = document.getElementById('reasonMangaId').value;
+                const reason = document.getElementById('reasonText').value.trim();
+                
+                if (!reason) {
+                    alert('Please provide a reason for disapproval.');
+                    return;
+                }
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'php/disapprove_manga.php';
+                
+                const mangaIdInput = document.createElement('input');
+                mangaIdInput.type = 'hidden';
+                mangaIdInput.name = 'manga_id';
+                mangaIdInput.value = mangaId;
+                
+                const reasonInput = document.createElement('input');
+                reasonInput.type = 'hidden';
+                reasonInput.name = 'reason';
+                reasonInput.value = reason;
+                
+                form.appendChild(mangaIdInput);
+                form.appendChild(reasonInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+            
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById('reasonModal');
+                if (event.target == modal) {
+                    closeReasonModal();
+                }
+            }
         </script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
-    <div class="navbar">
+        <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">
                     <a href="php/redirect.php">
@@ -103,10 +205,11 @@
         <div class="container">
             <h1 style="margin-top: 10px;">Pending Manga</h1>
                 <?php 
-                    $query = "SELECT id, title, image_url, description, author, type, genre
-                    FROM manga 
-                    WHERE approved = 0 
-                    ORDER BY created_at DESC;";
+                    $query = "SELECT m.id, m.title, m.image_url, m.description, m.author, m.type, m.genre, m.submitted_by, u.username as submitter_name
+                    FROM manga m
+                    LEFT JOIN users u ON m.submitted_by = u.id
+                    WHERE m.approved = 0 
+                    ORDER BY m.created_at DESC;";
                     $result = $conn->query($query);
                     if ($result && $result->num_rows > 0) {
                         echo '<div class="manga-list">';
@@ -118,10 +221,14 @@
                             $mangaAuthor = htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8');
                             $mangaType = htmlspecialchars($row['type'], ENT_QUOTES, 'UTF-8');
                             $mangaGenre = htmlspecialchars($row['genre'], ENT_QUOTES, 'UTF-8');
+                            $submitterName = htmlspecialchars($row['submitter_name'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+                            
                             echo '<div class="manga-item" onclick="openMangaPopup(' . $mangaId . ')">';
                             echo '<img src="' . $mangaImage . '" alt="' . $mangaTitle . '">';
                             echo '<div class="manga-title">' . $mangaTitle . '</div>';
+                            echo '<div class="submitter-info">Submitted by: ' . $submitterName . '</div>';
                             echo '</div>';
+                            
                             echo '<div id="manga-popup-' . $mangaId . '" class="popup" style="display: none;">';
                             echo '<div class="popup-content">';
                             echo '<span class="close-btn" onclick="closeMangaPopup(' . $mangaId . ')">&times;</span>';
@@ -129,6 +236,7 @@
                             echo '<img src="' . $mangaImage . '" alt="' . $mangaTitle . '" style="width: 10%; border-radius: 8px; margin-right: 15px;">';
                             echo '<div>';
                             echo '<h4 style="margin-bottom: 10px; font-size: 1.5rem; background: none; border: none; outline: none;" contenteditable="true" spellcheck="false">' . $mangaTitle . '</h4>';
+                            echo '<div style="font-size: 0.9em; color: #888; margin-bottom: 10px;">Submitted by: ' . $submitterName . '</div>';
                             echo '<hr style="border: 1px solid #ccc; margin: 10px 0;">';
                             echo '<div style="display: flex; align-items: center; margin-bottom: 3px;">';
                             echo '<strong style="min-width: 45px;">Author:</strong>';
@@ -156,10 +264,7 @@
                             echo '<input type="hidden" name="redirect" value="redirect.php">';
                             echo '<button type="submit" class="btn btn-success">Approve</button>';
                             echo '</form>';
-                            echo '<form method="post" action="php/disapprove_manga.php" style="display: inline; margin-left: 10px;">';
-                            echo '<input type="hidden" name="manga_id" value="' . $mangaId . '">';
-                            echo '<button type="submit" class="btn btn-danger">Disapprove</button>';
-                            echo '</form>';
+                            echo '<button type="button" class="btn btn-danger" style="margin-left: 10px;" onclick="openReasonModal(' . $mangaId . ', \'' . addslashes($mangaTitle) . '\')">Disapprove</button>';
                             echo '</div>';
                             echo '</div>';
                             echo '</div>';
@@ -170,6 +275,22 @@
                     }
                     $conn->close();
                 ?>
+        </div>
+        
+        <!-- Reason Modal -->
+        <div id="reasonModal" class="reason-modal">
+            <div class="reason-modal-content">
+                <span class="reason-close" onclick="closeReasonModal()">&times;</span>
+                <h3>Disapprove Manga</h3>
+                <p>You are about to disapprove: <strong id="reasonMangaTitle"></strong></p>
+                <p>Please provide a reason for disapproval:</p>
+                <textarea id="reasonText" class="reason-textarea" placeholder="Enter the reason for disapproval here..." maxlength="500"></textarea>
+                <div class="reason-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeReasonModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="submitDisapproval()">Disapprove</button>
+                </div>
+                <input type="hidden" id="reasonMangaId" value="">
+            </div>
         </div>
     </body>
 </html>

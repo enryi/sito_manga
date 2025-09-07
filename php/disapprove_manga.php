@@ -1,6 +1,11 @@
 <?php
+    session_start();
+    require_once 'notification_functions.php';
+    
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manga_id'])) {
         $manga_id = intval($_POST['manga_id']);
+        $disapproval_reason = isset($_POST['reason']) ? trim($_POST['reason']) : 'No reason provided';
+        
         $servername = "localhost";
         $username = "root";
         $password = "";
@@ -11,61 +16,80 @@
             die(json_encode(['success' => false, 'message' => 'Database connection failed.']));
         }
 
-        // First get the image path before deleting the manga
-        $imageQuery = "SELECT image_url FROM manga WHERE id = ?";
-        $imageStmt = $conn->prepare($imageQuery);
-        if (!$imageStmt) {
-            echo json_encode(['success' => false, 'message' => 'Failed to prepare image query.']);
+        // Get manga details and original submitter before deleting
+        $mangaQuery = "SELECT title, image_url, submitted_by FROM manga WHERE id = ?";
+        $mangaStmt = $conn->prepare($mangaQuery);
+        if (!$mangaStmt) {
+            echo json_encode(['success' => false, 'message' => 'Failed to prepare manga query.']);
             $conn->close();
             exit();
         }
 
-        $imageStmt->bind_param("i", $manga_id);
-        $imageStmt->execute();
-        $imageResult = $imageStmt->get_result();
-        $manga = $imageResult->fetch_assoc();
-        $imageStmt->close();
+        $mangaStmt->bind_param("i", $manga_id);
+        $mangaStmt->execute();
+        $mangaResult = $mangaStmt->get_result();
+        $manga = $mangaResult->fetch_assoc();
+        $mangaStmt->close();
 
-        // Delete the manga from database
-        $stmt = $conn->prepare("DELETE FROM manga WHERE id = ?");
-        if (!$stmt) {
-            echo json_encode(['success' => false, 'message' => 'Failed to prepare delete query.']);
-            $conn->close();
-            exit();
-        }
+        if ($manga) {
+            $manga_title = $manga['title'];
+            $submitted_by = $manga['submitted_by'];
+            $image_url = $manga['image_url'];
 
-        $stmt->bind_param("i", $manga_id);
-        
-        if ($stmt->execute()) {
-            // Delete the image file if it exists
-            if ($manga && isset($manga['image_url'])) {
-                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/enryi/' . $manga['image_url'];
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+            // Delete the manga from database
+            $stmt = $conn->prepare("DELETE FROM manga WHERE id = ?");
+            if (!$stmt) {
+                echo json_encode(['success' => false, 'message' => 'Failed to prepare delete query.']);
+                $conn->close();
+                exit();
+            }
+
+            $stmt->bind_param("i", $manga_id);
+            
+            if ($stmt->execute()) {
+                // Delete the image file if it exists
+                if ($image_url) {
+                    $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/enryi/' . $image_url;
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
                 }
-            }
 
-            // Delete related notifications
-            $notifStmt = $conn->prepare("DELETE FROM notifications WHERE manga_id = ?");
-            if ($notifStmt) {
-                $notifStmt->bind_param("i", $manga_id);
-                $notifStmt->execute();
-                $notifStmt->close();
-            }
+                // Notify the original submitter about disapproval
+                if ($submitted_by) {
+                    $disapproval_message = "Unfortunately, your manga '$manga_title' has been disapproved.";
+                    if (notifyUserAboutMangaStatus($conn, $submitted_by, 'manga_disapproved', $manga_title, $disapproval_message, null, $disapproval_reason)) {
+                        error_log("Disapproval notification sent to user ID: $submitted_by with reason: $disapproval_reason");
+                    } else {
+                        error_log("Failed to send disapproval notification to user ID: $submitted_by");
+                    }
+                }
 
-            echo json_encode(['success' => true, 'message' => 'Manga disapproved and deleted successfully.']);
-            header("Location: ../pending");
+                // Delete related admin notifications for this manga
+                $deleteNotifQuery = "DELETE FROM notifications WHERE manga_id = ? AND type = 'manga_pending'";
+                $deleteStmt = $conn->prepare($deleteNotifQuery);
+                if ($deleteStmt) {
+                    $deleteStmt->bind_param("i", $manga_id);
+                    $deleteStmt->execute();
+                    $deleteStmt->close();
+                }
+
+                echo json_encode(['success' => true, 'message' => 'Manga disapproved successfully.']);
+                header("Location: ../pending");
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to disapprove manga.']);
+                header("Location: ../pending");
+            }
+            
+            $stmt->close();
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to disapprove manga.']);
-            echo "<script>console.error('Failed to disapprove manga.');</script>";
+            echo json_encode(['success' => false, 'message' => 'Manga not found.']);
             header("Location: ../pending");
         }
         
-        $stmt->close();
         $conn->close();
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid request']);
-        echo "<script>console.error('Error: Invalid request.');</script>";
         header("Location: ../pending");
     }
 ?>
