@@ -116,7 +116,6 @@
         return $result;
     }
 
-    // MODIFIED: Now marks all notifications as read instead of deleting them
     function markAllNotificationsAsRead($conn, $user_id) {
         $query = "UPDATE notifications SET is_read = 1 WHERE user_id = ?";
         
@@ -141,7 +140,6 @@
         return $result;
     }
 
-    // NEW FUNCTION: Delete all read notifications (optional - for cleanup)
     function deleteAllReadNotifications($conn, $user_id) {
         $query = "DELETE FROM notifications WHERE user_id = ? AND is_read = 1";
         
