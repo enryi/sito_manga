@@ -13,10 +13,21 @@
         
         $searchResults = array();
         while ($row = $result->fetch_assoc()) {
+            // Get the current script's directory level to determine the correct path
+            $currentPath = $_SERVER['REQUEST_URI'];
+            $isInSubfolder = strpos($currentPath, '/series/') !== false;
+            
+            // Adjust paths based on current location
+            $imageUrl = $isInSubfolder ? '../' . $row['image_url'] : $row['image_url'];
+            $mangaPath = $isInSubfolder ? 
+                strtolower(str_replace(' ', '_', $row['title'])) . '.php' : 
+                'series/' . strtolower(str_replace(' ', '_', $row['title'])) . '.php';
+            
             $searchResults[] = array(
                 'id' => $row['id'],
                 'title' => $row['title'],
-                'image_url' => $row['image_url']
+                'image_url' => $imageUrl,
+                'manga_path' => $mangaPath
             );
         }
         

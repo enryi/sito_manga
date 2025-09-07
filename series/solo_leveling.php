@@ -90,6 +90,7 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         <script src="../JS/user.js"></script>
         <script src="../JS/search_manga.js"></script>
+        <script src="../JS/notifications.js"></script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
         <div class="navbar">
@@ -105,7 +106,7 @@
                     </div>
                 </div>
                 <div class="search-container" autocomplete="off">
-                    <input type="text" id="search-input" placeholder="Search" onkeyup="searchManga()" autocomplete="off" />
+                    <input type="text" id="search-input" placeholder="Search" autocomplete="off" />
                     <div id="search-results" class="search-results-container">
                         <h class="search-results"></h>
                         <h class="search-results2"></h>
@@ -245,7 +246,7 @@
             <div class="popup-content">
                 <span class="close-btn" onclick="closeAddMangaPopup()">&times;</span>
                 <h5>ADD NEW MANGA</h5>
-                <form id="add-manga-form" method="post" action="php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
+                <form id="add-manga-form" method="post" action="../php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
                     <label for="manga-title">TITLE:</label>
                     <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
                     

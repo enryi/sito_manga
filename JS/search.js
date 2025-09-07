@@ -13,10 +13,15 @@ function searchManga() {
         return;
     }
 
+    // Determine if we're in a subfolder to adjust the API path
+    const currentPath = window.location.pathname;
+    const isInSubfolder = currentPath.includes('/series/');
+    const apiPath = isInSubfolder ? '../php/search_manga.php' : 'php/search_manga.php';
+
     const formData = new FormData();
     formData.append('search', searchTerm);
 
-    fetch('php/search_manga.php', {
+    fetch(apiPath, {
         method: 'POST',
         body: formData
     })
@@ -37,7 +42,7 @@ function searchManga() {
         } else {
             data.forEach((manga, index) => {
                 const resultHtml = `
-                    <div class="manga-result-container" onclick="window.location.href='series/${manga.title.toLowerCase().replace(/\s+/g, '_')}.php'">
+                    <div class="manga-result-container" onclick="window.location.href='${manga.manga_path}'">
                         <div class="manga-image">
                             <img src="${manga.image_url}" alt="${manga.title}">
                         </div>
