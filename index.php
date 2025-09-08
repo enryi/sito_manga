@@ -85,6 +85,62 @@
                         </a>
                     <?php endif; ?>
                 </div>
+                <div class="hamburger" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div id="mobileMenu" class="mobile-menu">
+            <div class="mobile-search-container">
+                <input type="text" id="mobile-search-input" placeholder="Search manga..." onkeyup="searchManga()" autocomplete="off" />
+                <svg class="search-icon" viewBox="0 0 24 24">
+                    <path d="M10 6.5C10 8.433 8.433 10 6.5 10C4.567 10 3 8.433 3 6.5C3 4.567 4.567 3 6.5 3C8.433 3 10 4.567 10 6.5ZM9.30884 10.0159C8.53901 10.6318 7.56251 11 6.5 11C4.01472 11 2 8.98528 2 6.5C2 4.01472 4.01472 2 6.5 2C8.98528 2 11 4.01472 11 6.5C11 7.56251 10.6318 8.53901 10.0159 9.30884L12.8536 12.1464C13.0488 12.3417 13.0488 12.6583 12.8536 12.8536C12.6583 13.0488 12.3417 13.0488 12.1464 12.8536L9.30884 10.0159Z"></path>
+                </svg>
+            </div>
+
+            <a href="" class="nav-link" onclick="closeMobileMenu()">Home</a>
+            <a href="bookmark" class="nav-link" onclick="closeMobileMenu()">Bookmarks</a>
+            <a href="comics" class="nav-link" onclick="closeMobileMenu()">Comics</a>
+            
+            <div class="mobile-user-controls">
+                <a href="#" class="nav-link" onclick="closeMobileMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
+                        <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
+                    </svg>
+                    Notifications
+                </a>
+                
+                <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
+                    <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                        <a href="pending" class="nav-link" onclick="closeMobileMenu()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; margin-right: 8px;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Pending Manga
+                        </a>
+                    <?php endif; ?>
+                    
+                    <a href="#" class="nav-link" onclick="logout(); closeMobileMenu();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" x2="9" y1="12" y2="12"></line>
+                        </svg>
+                        Log Out
+                    </a>
+                <?php else: ?>
+                    <a href="login" class="nav-link" onclick="closeMobileMenu()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" x2="3" y1="12" y2="12"></line>
+                        </svg>
+                        Login
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
         <div class="manga">
@@ -150,5 +206,53 @@
                 </form>
             </div>
         </div>
+
+        <script>
+            function toggleMobileMenu() {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const hamburger = document.querySelector('.hamburger');
+                
+                mobileMenu.classList.toggle('active');
+                hamburger.classList.toggle('active');
+                
+                if (mobileMenu.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            function closeMobileMenu() {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const hamburger = document.querySelector('.hamburger');
+                
+                mobileMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            document.addEventListener('click', function(event) {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const hamburger = document.querySelector('.hamburger');
+                
+                if (mobileMenu.classList.contains('active') && 
+                    !mobileMenu.contains(event.target) && 
+                    !hamburger.contains(event.target)) {
+                    closeMobileMenu();
+                }
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMobileMenu();
+                }
+            });
+
+            document.getElementById('mobile-search-input').addEventListener('input', function() {
+                const desktopSearch = document.getElementById('search-input');
+                desktopSearch.value = this.value;
+                searchManga();
+            });
+        </script>
     </body>
 </html>

@@ -27,6 +27,7 @@
         <link rel="stylesheet" href="CSS/user.css">
         <link rel="stylesheet" href="CSS/pending.css">
         <link rel="stylesheet" href="CSS/navbar.css">
+        <link rel="stylesheet" href="CSS/notifications.css">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
@@ -200,6 +201,7 @@
                 </div>
             </div>
         </div>
+        <div id="notification-container" class="notification-container"></div>
         <div class="container">
             <h1 style="margin-top: 10px;">Pending Manga</h1>
                 <?php 
@@ -297,9 +299,9 @@
                 <form id="add-manga-form" method="post" action="php/add_manga.php" enctype="multipart/form-data" autocomplete="off">
                     <label for="manga-title">TITLE:</label>
                     <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
-                    
                     <label for="manga-image">UPLOAD IMAGE:</label>
-                    <input type="file" id="manga-image" name="manga-image" accept="image/*" required>
+                    <input type="file" id="manga-image" name="manga-image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" required>
+                    <small style="color: #888; font-size: 12px;">Accepted formats: JPG, PNG, GIF, WebP (Max: 5MB)</small>
                     
                     <label for="manga-description">DESCRIPTION:</label>
                     <input type="text" id="manga-description" name="manga-description" placeholder="Description" required>

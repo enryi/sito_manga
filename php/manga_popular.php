@@ -10,14 +10,16 @@
     }
 
     $query = "
-        SELECT m.id, m.title, m.image_url, 
-            COALESCE(FLOOR(AVG(lu.rating) * 10) / 10, 0) AS rating
+        SELECT m.id, m.title, m.image_url,
+        COUNT(lu.user_id) AS user_votes,
+        COALESCE(FLOOR(AVG(lu.rating) * 10) / 10, 0) AS rating
         FROM manga m
         LEFT JOIN user_list lu ON m.id = lu.manga_id
         WHERE m.approved = 1
         GROUP BY m.id
-        HAVING rating > 0
-        ORDER BY m.created_at DESC
+        HAVING user_votes > 0
+        ORDER BY user_votes DESC, rating DESC
+        LIMIT 4;
     ";
 
     $result = $conn->query($query);

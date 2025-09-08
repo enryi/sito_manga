@@ -1,0 +1,167 @@
+/* Notification System Styles */
+.notifications_upload-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    width: 100%;
+}
+
+.notifications_upload {
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-left: 4px solid;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideIn 0.3s forwards;
+}
+
+.notifications_upload.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notifications_upload.success {
+    border-left-color: #4CAF50;
+}
+
+.notifications_upload.error {
+    border-left-color: #f44336;
+}
+
+.notifications_upload.warning {
+    border-left-color: #ff9800;
+}
+
+.notifications_upload.info {
+    border-left-color: #2196F3;
+}
+
+.notifications_upload-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.notifications_upload-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+}
+
+.notifications_upload-title {
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.notifications_upload-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.notifications_upload-close:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.notifications_upload-message {
+    font-size: 13px;
+    line-height: 1.4;
+    color: #e0e0e0;
+    margin-left: 32px;
+}
+
+.notifications_upload-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 100%;
+    animation: progressBar 5s linear forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes progressBar {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+.notifications_upload.hide {
+    animation: slideOut 0.3s forwards;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .notifications_upload-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        max-width: none;
+    }
+    
+    .notifications_upload {
+        padding: 12px 16px;
+    }
+    
+    .notifications_upload-title {
+        font-size: 13px;
+    }
+    
+    .notifications_upload-message {
+        font-size: 12px;
+        margin-left: 28px;
+    }
+    
+    .notifications_upload-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+    }
+}

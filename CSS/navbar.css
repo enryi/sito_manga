@@ -114,6 +114,7 @@
     align-items: center;
     justify-content: flex-start;
     margin-right: 0;
+    z-index: 1001;
 }
 
 .logo {
@@ -472,4 +473,294 @@ select option {
 
 .search-results-container.active {
     display: block;
+}
+
+/* Hamburger Menu */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 1001;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    margin: 3px 0;
+    transition: 0.3s;
+    border-radius: 2px;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -6px);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu.active {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu .nav-link {
+    font-size: 24px;
+    padding: 15px 30px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 200px;
+}
+
+.mobile-menu .nav-link:hover {
+    background-color: #444;
+    border-color: #ffc107;
+    transform: scale(1.05);
+}
+
+.mobile-search-container {
+    width: 80%;
+    max-width: 400px;
+    position: relative;
+    margin: 20px 0;
+}
+
+.mobile-search-container input {
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+    background-color: #444;
+    border: 2px solid #555;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+}
+
+.mobile-search-container input::placeholder {
+    color: #aaa;
+}
+
+.mobile-search-container .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    stroke: #aaa;
+}
+
+.mobile-user-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.mobile-user-controls .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+    .navbar-container {
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 15px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .search-container {
+        width: 250px;
+    }
+    
+    .navbar-container {
+        padding: 0 10px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-links,
+    .search-container,
+    .user-container .notification {
+        display: none;
+    }
+
+    .user-container {
+        gap: 10px;
+    }
+
+    .navbar {
+        padding: 10px 15px;
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .navbar {
+        padding: 8px 10px;
+    }
+
+    .logo {
+        width: 35px;
+        height: 35px;
+        margin-right: 8px;
+    }
+
+    .user-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .login-button {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .login-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .mobile-menu .nav-link {
+        font-size: 20px;
+        min-width: 180px;
+    }
+}
+/* Additional responsive styles for bookmarks and other pages */
+@media screen and (max-width: 768px) {
+    .manga-latest-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .manga-item img {
+        height: 220px;
+    }
+    
+    .manga-info {
+        padding: 10px;
+    }
+    
+    .manga-info h3 {
+        font-size: 14px;
+        line-height: 1.3;
+        height: auto;
+        white-space: normal;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        display: -webkit-box;
+        overflow: hidden;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .manga-latest-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 0 10px;
+    }
+    
+    .manga-item img {
+        height: 200px;
+    }
+    
+    .manga-info {
+        padding: 8px;
+    }
+    
+    .rating {
+        font-size: 12px;
+    }
+    
+    .chapters {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .manga-latest-list {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0 15px;
+    }
+    
+    .manga-item {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .manga-item img {
+        height: 280px;
+    }
+    
+    .manga-info h3 {
+        font-size: 16px;
+        text-align: center;
+    }
+    
+    .rating,
+    .chapters {
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .no-bookmarks {
+        margin: 15px;
+        padding: 30px 20px;
+    }
+    
+    .no-bookmarks p {
+        font-size: 16px;
+    }
+    
+    .add-manga-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px 20px;
+    }
 }
