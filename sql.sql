@@ -86,6 +86,7 @@ CREATE TABLE `user_list` (
   `rating` float DEFAULT NULL CHECK (`rating` >= 0 and `rating` <= 10),
   `chapters` int(11) NOT NULL,
   `status` varchar(11) NOT NULL DEFAULT 'reading'
+  'link_site' varchar(2000) DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -122,7 +123,6 @@ ALTER TABLE `user_list`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `manga_id` (`manga_id`);
-
 --
 -- AUTO_INCREMENT for dumped tables
 --

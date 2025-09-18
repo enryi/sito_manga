@@ -9,7 +9,11 @@
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $sql = "SELECT id, title, image_url FROM manga WHERE approved = 1 ORDER BY created_at DESC";
+    $sql = "SELECT id, title, image_url
+        FROM manga
+        WHERE approved = 1
+        ORDER BY created_at DESC
+        LIMIT 20";
     $result = $conn->query($sql);
     $mangaItems = [];
     if ($result->num_rows > 0) {

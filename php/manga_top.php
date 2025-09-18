@@ -9,7 +9,14 @@
         die("Connection failed: " . $conn->connect_error);
     }
     $query = "
-        SELECT m.id, m.title, m.image_url, m.genre, 
+        SELECT 
+            m.id, 
+            m.title, 
+            m.image_url, 
+            CASE 
+                WHEN CHAR_LENGTH(m.genre) <= 36 THEN m.genre
+                ELSE CONCAT(SUBSTRING(m.genre, 1, 33), '...')
+            END AS genre,
             COALESCE(FLOOR(AVG(lu.rating) * 10) / 10, 0) AS rating
         FROM manga m
         LEFT JOIN user_list lu ON m.id = lu.manga_id

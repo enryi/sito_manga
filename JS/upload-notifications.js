@@ -1,8 +1,6 @@
-// Upload Notifications System - Separate from user notifications
 let uploadNotificationsId = 0;
 
 function showUploadNotifications(type, title, message, duration = 5000) {
-    // Create container if it doesn't exist
     let container = document.getElementById('upload-notifications-container');
     if (!container) {
         container = document.createElement('div');
@@ -13,12 +11,10 @@ function showUploadNotifications(type, title, message, duration = 5000) {
     
     const id = ++uploadNotificationsId;
     
-    // Create notifications_upload element
     const notifications_upload = document.createElement('div');
     notifications_upload.className = `upload-notifications_upload ${type}`;
     notifications_upload.id = `upload-notifications_upload-${id}`;
     
-    // Get appropriate icon based on type
     const icons = {
         success: `<svg class="upload-notifications-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="20 6 9 17 4 12"></polyline>
@@ -54,12 +50,10 @@ function showUploadNotifications(type, title, message, duration = 5000) {
     
     container.appendChild(notifications_upload);
     
-    // Trigger show animation
     setTimeout(() => {
         notifications_upload.classList.add('show');
     }, 10);
     
-    // Auto hide after duration
     if (duration > 0) {
         setTimeout(() => {
             hideUploadNotifications(id);
@@ -94,7 +88,6 @@ function hideAllUploadNotifications() {
     }
 }
 
-// Function to show notifications based on URL parameters (for PHP integration)
 function checkUrlForUploadNotifications() {
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
@@ -125,7 +118,6 @@ function checkUrlForUploadNotifications() {
         
         showUploadNotifications(type, title, decodedMessage);
         
-        // Clean URL after showing notifications
         if (window.history.replaceState) {
             const cleanUrl = window.location.pathname;
             window.history.replaceState({}, document.title, cleanUrl);
@@ -133,7 +125,6 @@ function checkUrlForUploadNotifications() {
     }
 }
 
-// Function to add form validation notifications
 function validateUploadForm(formId) {
     const form = document.getElementById(formId);
     if (!form) return true;
@@ -156,11 +147,10 @@ function validateUploadForm(formId) {
         return false;
     }
     
-    // Validate file if present
     const fileInput = form.querySelector('input[type="file"]');
     if (fileInput && fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024;
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         
         if (file.size > maxSize) {
@@ -177,12 +167,10 @@ function validateUploadForm(formId) {
     return true;
 }
 
-// Function to show loading notifications during form submission
 function showUploadLoadingNotifications(message = 'Uploading manga...') {
-    return showUploadNotifications('info', 'Please Wait', message, 0); // 0 duration means no auto-hide
+    return showUploadNotifications('info', 'Please Wait', message, 0);
 }
 
-// Add upload notifications styles
 const uploadNotificationsStyle = document.createElement('style');
 uploadNotificationsStyle.textContent = `
     /* Upload Notifications System Styles */
@@ -354,12 +342,9 @@ uploadNotificationsStyle.textContent = `
 `;
 document.head.appendChild(uploadNotificationsStyle);
 
-// Initialize upload notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Check for upload notifications from URL parameters
     checkUrlForUploadNotifications();
     
-    // Add form validation to manga upload forms
     const addMangaForm = document.getElementById('add-manga-form');
     if (addMangaForm) {
         addMangaForm.addEventListener('submit', function(e) {
@@ -368,7 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Show loading notifications
             showUploadLoadingNotifications('Uploading your manga... This may take a few seconds.');
         });
     }
