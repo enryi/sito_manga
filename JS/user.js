@@ -56,3 +56,22 @@ function toggleDescription(button) {
         button.textContent = 'Read more';
     }
 }
+function closeAddMangaPopup() {
+    const popup = document.getElementById('add-manga-popup');
+    if (popup) {
+        popup.style.display = 'none';
+        const form = document.getElementById('add-manga-form');
+        if (form) {
+            form.reset();
+            const titleInput = document.getElementById('manga-title');
+            if (titleInput) {
+                titleInput.value = currentSearchQuery;
+            }
+            const messageContainer = document.getElementById('form-message');
+            if (messageContainer) {
+                messageContainer.innerHTML = '';
+                messageContainer.style.display = 'none';
+            }
+        }
+    }
+}

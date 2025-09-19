@@ -1,0 +1,420 @@
+/* Update the form-group svg positioning to exclude toggle-password icons */
+.form-group svg:not(.toggle-password) {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #666;
+    z-index: 2;
+}
+
+/* Ensure toggle-password icons are positioned correctly and don't conflict */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    fill: #666;
+    transition: fill 0.2s ease;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    fill: #6F2598;
+}
+
+/* Ensure password inputs have proper padding for both icons */
+.password-inputs input[type="password"],
+.password-inputs input[type="text"] {
+    padding-left: 2.8rem !important; /* Space for lock icon */
+    padding-right: 45px !important;  /* Space for eye icon */
+}
+
+/* Make sure password-inputs container is positioned relatively */
+.password-inputs {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Rest of your existing CSS remains the same... */
+.auth-wrapper {
+    min-height: calc(100vh - 68px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-color: #181A1B;
+    margin-top: 68px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 1220px;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-card {
+    background: #222222;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px;
+}
+
+.auth-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.auth-logo img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-control {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.8rem;
+    background-color: #181A1B;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #6F2598;
+    box-shadow: 0 0 0 2px rgba(111, 37, 152, 0.2);
+    background-color: #181A1B;
+    color: #fff;
+}
+
+.form-control::placeholder {
+    color: #888;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    accent-color: #6F2598;
+}
+
+.checkbox-wrapper label {
+    color: #ccc;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.forgot-link {
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.forgot-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: #6F2598;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #5a1f78;
+}
+
+.btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(111, 37, 152, 0.3);
+}
+
+.btn-primary:disabled {
+    background-color: #444;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.auth-footer a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: text-decoration 0.2s;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 0.875rem 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #f8d7da;
+}
+
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.1);
+    border: 1px solid rgba(25, 135, 84, 0.3);
+    color: #d1e7dd;
+}
+
+/* Password strength indicators */
+#password-strength-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    display: none;
+}
+
+#password-strength-bar-inner {
+    height: 100%;
+    width: 0%;
+    background-color: red;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+#password-strength {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+    display: none;
+    font-size: 0.8rem;
+}
+
+/* Profile picture upload styles */
+.pfp-upload-section {
+    display: none;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.pfp-upload-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.pfp-upload-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 2rem;
+    border: 2px dashed #6F2598;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    overflow: hidden;
+}
+
+.pfp-upload-container:hover {
+    border-color: #5a1f78;
+}
+
+.pfp-upload-container.has-image {
+    border: 2px solid #6F2598;
+}
+
+.pfp-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: none;
+}
+
+.pfp-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #888;
+}
+
+.pfp-upload-placeholder svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+    color: #6F2598;
+}
+
+.pfp-upload-placeholder p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.pfp-upload-input {
+    display: none;
+}
+
+.pfp-crop-controls {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.crop-slider {
+    width: 200px;
+    height: 6px;
+    border-radius: 3px;
+    background: #333;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.crop-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #6F2598;
+    cursor: pointer;
+}
+
+.crop-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #6F2598;
+    cursor: pointer;
+    border: none;
+}
+
+.crop-label {
+    color: #ccc;
+    font-size: 0.9rem;
+    font-weight: 500;
+    min-width: 60px;
+    text-align: center;
+}
+
+.pfp-buttons {
+    display: none;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-secondary {
+    padding: 0.75rem 1.5rem;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #444;
+}
+
+.skip-btn {
+    background-color: #666;
+}
+
+.skip-btn:hover {
+    background-color: #777;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .auth-wrapper {
+        padding: 1rem;
+    }
+    
+    .auth-card {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+    
+    .pfp-upload-container {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .crop-slider {
+        width: 150px;
+    }
+}

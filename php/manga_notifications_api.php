@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once 'notification_functions.php';
+    require_once '../notification_functions.php';
 
     $servername = "localhost";
     $username = "root";

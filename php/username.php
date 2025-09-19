@@ -16,10 +16,6 @@
         $login_error = $_SESSION['login_error'];
         unset($_SESSION['login_error']);
     }
-    echo "<script>console.log('admin');</script>";
-    echo "<script>console.log('" . password_hash('admin', PASSWORD_BCRYPT) . "');</script>";
-    echo "<script>console.log('ste');</script>";
-    echo "<script>console.log('" . password_hash('ste', PASSWORD_BCRYPT) . "');</script>";
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = $_POST['username'];

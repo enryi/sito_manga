@@ -1,4 +1,5 @@
 <?php
+    require_once 'db_connection.php';
     $servername = "localhost";
     $username = "root";
     $password = "";
@@ -33,7 +34,8 @@
         $rank = 1;
         while ($row = $result->fetch_assoc()) {
             $mangaTitleSlug = strtolower(str_replace(' ', '_', $row['title']));
-            $mangaPageUrl = "series/" . $mangaTitleSlug . ".php";
+            // URL pulito senza parametri GET
+            $mangaPageUrl = "series/" . $mangaTitleSlug;
             $rating = floatval($row['rating']);
             
             echo '<div class="top-manga-item" onclick="window.location.href=\'' . htmlspecialchars($mangaPageUrl) . '\'">';

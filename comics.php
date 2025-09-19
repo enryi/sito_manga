@@ -14,13 +14,17 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="CSS/manga.css">
         <link rel="stylesheet" href="CSS/navbar.css">
+        <link rel="stylesheet" href="CSS/search.css">
         <link rel="stylesheet" href="CSS/notifications.css">
+        <link rel="stylesheet" href="CSS/pagination.css">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         <script src="JS/user.js"></script>
         <script src="JS/search.js"></script>
+        <script src="JS/filter.js"></script>
         <script src="JS/notifications.js"></script>
+        <script src="JS/upload-notifications.js"></script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
         <div class="navbar">
@@ -36,7 +40,7 @@
                     </div>
                 </div>
                 <div class="search-container" autocomplete="off">
-                    <input type="text" id="search-input" placeholder="Search" onkeyup="searchManga()" autocomplete="off" />
+                    <input type="text" id="search-input" placeholder="Search" autocomplete="off" />
                     <div id="search-results" class="search-results-container">
                         <h class="search-results"></h>
                         <h class="search-results2"></h>
@@ -52,28 +56,39 @@
                             <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
                         </svg>
                     </div>
-                    <?php
-                        $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "images/admin.png" : "images/user.svg";
-                    ?>
-                    <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
-                    <div id="user-dropdown" class="user-dropdown">
-                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                            <a href="pending" class="pending-manga">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
+                    <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
+                        <?php
+                            $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "images/admin.png" : "images/user.svg";
+                        ?>
+                        <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
+                        <div id="user-dropdown" class="user-dropdown">
+                            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                                <a href="pending" class="pending-manga">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Pending
+                                </a>
+                            <?php endif; ?>
+                            <a href="#" onclick="logout(); return false;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" x2="9" y1="12" y2="12"></line>
                                 </svg>
-                                Pending
+                                Log Out
                             </a>
-                        <?php endif; ?>
-                        <a href="php/redirect.php" onclick="logout()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" x2="9" y1="12" y2="12"></line>
+                        </div>
+                    <?php else: ?>
+                        <a href="login" class="login-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" x2="3" y1="12" y2="12"></line>
                             </svg>
-                            Log Out
+                            Login
                         </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -82,14 +97,49 @@
             <div class="manga-container">
                 <div class="left-column">
                     <div class="popular-manga-container">
+                    <div class="series-header">
                         <h3 class="manga-title">SERIES LIST</h3>
-                        <div class="divider"></div>
-                        <div class="manga-popular-list">
-                            <?php
-                                require_once 'php/manga_latest.php';
-                            ?>
+                        <div class="filter-container">
+                            <button class="filter-button" onclick="toggleFilterDropdown()">
+                                <!-- Icona filtro (imbuto) creata in stile coerente con il sito -->
+                                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 4.5C3 4.22386 3.22386 4 3.5 4H20.5C20.7761 4 21 4.22386 21 4.5C21 4.77614 20.7761 5 20.5 5H3.5C3.22386 5 3 4.77614 3 4.5Z" fill="currentColor"/>
+                                    <path d="M5 8.5C5 8.22386 5.22386 8 5.5 8H18.5C18.7761 8 19 8.22386 19 8.5C19 8.77614 18.7761 9 18.5 9H5.5C5.22386 9 5 8.77614 5 8.5Z" fill="currentColor"/>
+                                    <path d="M7 12.5C7 12.2239 7.22386 12 7.5 12H16.5C16.7761 12 17 12.2239 17 12.5C17 12.7761 16.7761 13 16.5 13H7.5C7.22386 13 7 12.7761 7 12.5Z" fill="currentColor"/>
+                                    <path d="M9 16.5C9 16.2239 9.22386 16 9.5 16H14.5C14.7761 16 15 16.2239 15 16.5C15 16.7761 14.7761 17 14.5 17H9.5C9.22386 17 9 16.7761 9 16.5Z" fill="currentColor"/>
+                                    <path d="M11 20.5C11 20.2239 11.2239 20 11.5 20H12.5C12.7761 20 13 20.2239 13 20.5C13 20.7761 12.7761 21 12.5 21H11.5C11.2239 21 11 20.7761 11 20.5Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <div class="filter-dropdown" id="filter-dropdown">
+                                <div class="filter-dropdown-header">Sort By</div>
+                                <button class="filter-option active" data-sort="newest">
+                                    Newest First <span class="sort-indicator">↓</span>
+                                </button>
+                                <button class="filter-option" data-sort="oldest">
+                                    Oldest First <span class="sort-indicator">↑</span>
+                                </button>
+                                <button class="filter-option" data-sort="rating_high">
+                                    Rating High-Low <span class="sort-indicator">↓</span>
+                                </button>
+                                <button class="filter-option" data-sort="rating_low">
+                                    Rating Low-High <span class="sort-indicator">↑</span>
+                                </button>
+                                <button class="filter-option" data-sort="title_az">
+                                    Title A-Z <span class="sort-indicator">↓</span>
+                                </button>
+                                <button class="filter-option" data-sort="title_za">
+                                    Title Z-A <span class="sort-indicator">↑</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    <div class="divider"></div>
+                    <div class="manga-popular-list">
+                        <?php
+                            require_once 'php/comics.php';
+                        ?>
+                    </div>
+                </div>
                 </div>
                 <div class="top-manga-container">
                     <h3 class="manga-title">TOP MANGA</h3>
@@ -111,7 +161,8 @@
                     <input type="text" id="manga-title" name="manga-title" placeholder="Title" required>
                     
                     <label for="manga-image">UPLOAD IMAGE:</label>
-                    <input type="file" id="manga-image" name="manga-image" accept="image/*" required>
+                    <input type="file" id="manga-image" name="manga-image" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" required>
+                    <small style="color: #888; font-size: 12px;">Accepted formats: JPG, PNG, GIF, WebP (Max: 5MB)</small>
                     
                     <label for="manga-description">DESCRIPTION:</label>
                     <input type="text" id="manga-description" name="manga-description" placeholder="Description" required>

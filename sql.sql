@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 07, 2025 at 11:24 AM
+-- Generation Time: Sep 19, 2025 at 12:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -70,7 +70,8 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `is_admin` tinyint(1) DEFAULT 0
+  `is_admin` tinyint(1) DEFAULT 0,
+  `pfp` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -84,9 +85,11 @@ CREATE TABLE `user_list` (
   `user_id` int(11) NOT NULL,
   `manga_id` int(11) NOT NULL,
   `rating` float DEFAULT NULL CHECK (`rating` >= 0 and `rating` <= 10),
-  `chapters` int(11) NOT NULL,
-  `status` varchar(11) NOT NULL DEFAULT 'reading'
-  'link_site' varchar(2000) DEFAULT NULL,
+  `chapters` int(11) NOT NULL DEFAULT 0,
+  `status` varchar(20) NOT NULL DEFAULT 'reading',
+  `link_site` varchar(2000) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -121,8 +124,10 @@ ALTER TABLE `users`
 --
 ALTER TABLE `user_list`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_manga` (`user_id`,`manga_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `manga_id` (`manga_id`);
+
 --
 -- AUTO_INCREMENT for dumped tables
 --

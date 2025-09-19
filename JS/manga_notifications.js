@@ -7,6 +7,7 @@ class NotificationSystem {
     }
 
     initNotifications() {
+        ('Initializing notification system...');
         this.createNotificationDropdown();
         this.updateNotificationCount();
 
@@ -19,8 +20,10 @@ class NotificationSystem {
 
     createNotificationDropdown() {
         const notificationIcon = document.querySelector('.notification');
+        ('Notification icon found:', notificationIcon);
         
         if (!notificationIcon) {
+            console.error('Notification icon not found!');
             return;
         }
 
@@ -57,33 +60,42 @@ class NotificationSystem {
 
         notificationIcon.parentNode.appendChild(dropdown);
         this.notificationDropdown = dropdown;
+        ('Notification dropdown created:', dropdown);
 
         notificationIcon.addEventListener('click', (e) => {
             e.stopPropagation();
+            ('Notification icon clicked');
             this.toggleNotificationDropdown();
         });
     }
 
     async updateNotificationCount() {
+        ('Updating notification count...');
         try {
-            const response = await fetch('php/notifications_api.php?action=get_count');
+            const response = await fetch('../php/notifications_api.php?action=get_count');
+            ('Count response status:', response.status);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const responseText = await response.text();
+            ('Raw response:', responseText);
             
             let data;
             try {
                 data = JSON.parse(responseText);
             } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Response text:', responseText);
                 return;
             }
             
+            ('Count data:', data);
             
             if (data.success) {
                 const badge = document.querySelector('.notification-badge');
+                ('Badge element:', badge);
                 
                 if (badge) {
                     if (data.count > 0) {
@@ -100,12 +112,15 @@ class NotificationSystem {
                     this.lastNotificationCount = data.count;
                 }
             } else {
+                console.error('API returned success: false', data);
             }
         } catch (error) {
+            console.error('Error fetching notifications count:', error);
         }
     }
 
     async toggleNotificationDropdown() {
+        ('Toggling notification dropdown, current display:', this.notificationDropdown.style.display);
         
         if (this.notificationDropdown.style.display === 'block') {
             this.hideNotificationDropdown();
@@ -115,47 +130,60 @@ class NotificationSystem {
     }
 
     async showNotificationDropdown() {
+        ('Showing notification dropdown...');
         await this.loadNotifications();
         this.notificationDropdown.style.display = 'block';
+        ('Dropdown should now be visible');
     }
 
     hideNotificationDropdown() {
         if (this.notificationDropdown) {
             this.notificationDropdown.style.display = 'none';
+            ('Dropdown hidden');
         }
     }
 
     async loadNotifications() {
+        ('Loading notifications...');
         try {
-            const response = await fetch('php/notifications_api.php?action=get_notifications');
+            const response = await fetch('../php/notifications_api.php?action=get_notifications');
+            ('Notifications response status:', response.status);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const responseText = await response.text();
+            ('Raw notifications response:', responseText);
             
             let data;
             try {
                 data = JSON.parse(responseText);
             } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Response text:', responseText);
                 this.renderErrorInDropdown('Error parsing response');
                 return;
             }
             
+            ('Notifications data:', data);
             
             if (data.success) {
+                ('Number of notifications:', data.notifications.length);
                 this.renderNotifications(data.notifications);
             } else {
+                console.error('API returned success: false', data);
                 this.renderErrorInDropdown('API error: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
+            console.error('Error loading notifications:', error);
             this.renderErrorInDropdown('Network error: ' + error.message);
         }
     }
 
     renderErrorInDropdown(errorMessage) {
         if (!this.notificationDropdown) {
+            console.error('Dropdown not found for error rendering');
             return;
         }
         
@@ -170,8 +198,10 @@ class NotificationSystem {
     }
 
     renderNotifications(notifications) {
+        ('Rendering notifications:', notifications);
         
         if (!this.notificationDropdown) {
+            console.error('Dropdown not found for rendering');
             return;
         }
         
@@ -247,6 +277,7 @@ class NotificationSystem {
         }
 
         this.notificationDropdown.innerHTML = html;
+        ('Notifications rendered successfully');
     }
 
     getNotificationTypeInfo(type) {
@@ -275,23 +306,27 @@ class NotificationSystem {
     }
 
     async handleNotificationClick(notificationId, mangaId, type) {
+        ('Notification clicked:', { notificationId, mangaId, type });
         await this.markAsRead(notificationId);
 
         if (type === 'manga_pending' && mangaId && window.location.pathname !== '/pending') {
             window.location.href = 'pending';
         } else if (type === 'manga_approved' && mangaId) {
+            ('Manga approved notification clicked');
         } else if (type === 'manga_disapproved') {
+            ('Manga disapproved notification clicked');
         }
         
         this.hideNotificationDropdown();
     }
 
     async markAsRead(notificationId) {
+        ('Marking notification as read:', notificationId);
         try {
             const formData = new FormData();
             formData.append('notification_id', notificationId);
             
-            const response = await fetch('php/notifications_api.php?action=mark_read', {
+            const response = await fetch('../php/notifications_api.php?action=mark_read', {
                 method: 'POST',
                 body: formData
             });
@@ -302,12 +337,14 @@ class NotificationSystem {
             
             this.updateNotificationCount();
         } catch (error) {
+            console.error('Error marking the notification as read:', error);
         }
     }
 
     async markAllAsRead() {
+        ('Marking all notifications as read');
         try {
-            const response = await fetch('php/notifications_api.php?action=mark_all_read', {
+            const response = await fetch('../php/notifications_api.php?action=mark_all_read', {
                 method: 'POST'
             });
             
@@ -318,6 +355,7 @@ class NotificationSystem {
             this.updateNotificationCount();
             this.loadNotifications();
         } catch (error) {
+            console.error('Error marking all notifications as read:', error);
         }
     }
 
@@ -390,5 +428,6 @@ document.head.appendChild(style);
 
 let notificationSystem;
 document.addEventListener('DOMContentLoaded', () => {
+    ('DOM loaded, initializing notification system');
     notificationSystem = new NotificationSystem();
 });

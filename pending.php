@@ -25,6 +25,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="CSS/user.css">
+        <link rel="stylesheet" href="CSS/search.css">
         <link rel="stylesheet" href="CSS/pending.css">
         <link rel="stylesheet" href="CSS/navbar.css">
         <link rel="stylesheet" href="CSS/notifications.css">
@@ -34,6 +35,7 @@
         <script src="JS/user.js"></script>
         <script src="JS/search.js"></script>
         <script src="JS/notifications.js"></script>
+        <script src="JS/upload-notifications.js"></script>
         <style>
             .reason-modal {
                 display: none;
@@ -168,7 +170,7 @@
                     </div>
                 </div>
                 <div class="search-container" autocomplete="off">
-                    <input type="text" id="search-input" placeholder="Search" onkeyup="searchManga()" autocomplete="off" />
+                    <input type="text" id="search-input" placeholder="Search" autocomplete="off" />
                     <div id="search-results" class="search-results-container">
                         <h class="search-results"></h>
                         <h class="search-results2"></h>

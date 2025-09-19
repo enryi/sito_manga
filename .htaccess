@@ -1,11 +1,55 @@
 RewriteEngine On
 
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+# Stop processing for static files immediately
+RewriteRule \.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff|woff2|ttf|eot)$ - [L]
 
-RewriteCond %{REQUEST_URI} ^$
-RewriteRule ^ enryi/login.php [R=302,L]
+# Regole per la cartella series
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^series/([^/]+)/?$ series/index.php [QSA,L]
 
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^ %{REQUEST_URI}.php [L]
+# Regole per file PHP nella root con URL clean
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^bookmark/?$ bookmark.php [QSA,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^comics/?$ comics.php [QSA,L]
+
+# Regole per login e register (file PHP nella root)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^login/?$ login.php [QSA,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^register/?$ register.php [QSA,L]
+
+# Regole per pending.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^pending/?$ pending.php [QSA,L]
+
+# Regola per forgot_password
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^forgot_password/?$ forgot_password.php [QSA,L]
+
+# Regole per cartelle con index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^pending/?$ pending/index.php [QSA,L]
+
+# Configurazioni per gestire meglio i caratteri speciali
+AddDefaultCharset UTF-8
+
+# Cache headers per le immagini
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+</IfModule>

@@ -1,13 +1,5 @@
 <?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "manga";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+    require_once 'db_connection.php';
 
     $query = "
         SELECT m.id, m.title, m.image_url,
@@ -38,12 +30,13 @@
         $emptyDivCount = $columns - ($totalManga % $columns);
         foreach ($mangaItems as $manga) {
             $mangaTitleSlug = strtolower(str_replace(' ', '_', $manga['title']));
+            // URL pulito senza parametri GET
             $mangaPageUrl = "series/" . $mangaTitleSlug;
             $rating = floatval($manga['rating']);
             
             echo '<div class="manga-item" onclick="window.location.href=\'' . htmlspecialchars($mangaPageUrl) . '\'">';
             echo '<img class="manga-image" src="' . htmlspecialchars($manga['image_url'], ENT_QUOTES, 'UTF-8') . '" alt="Manga Image">';
-            echo '<p class="manga-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' . htmlspecialchars($manga['title'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<p class="manga-title">' . htmlspecialchars($manga['title'], ENT_QUOTES, 'UTF-8') . '</p>';
             echo '<div class="manga-rating-container">';
             echo '<div class="stars">';
             $fullStars = floor($rating / 2);
