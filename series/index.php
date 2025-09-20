@@ -241,76 +241,16 @@ $recommendedResult = $recStmt->get_result();
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    <script src="../JS/user.js"></script>
+    <script src="../JS/user_manga.js"></script>
     <script src="../JS/search_manga.js"></script>
     <script src="../JS/manga_notifications.js"></script>
     <script src="../JS/upload-notifications.js"></script>
+    <script src="../JS/settings_manga.js"></script>
+    <script src="../JS/auth-notifications.js"></script>
 </head>
 <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
-    <!-- Navbar (identica a quella esistente) -->
-    <div class="navbar">
-        <div class="navbar-container">
-            <div class="logo-container">
-                <a href="../php/redirect.php">
-                    <img src="../images/icon.png" alt="Logo" class="logo" />
-                </a>
-                <div class="nav-links">
-                    <a href="../php/redirect.php" class="nav-link">Home</a>
-                    <a href="../bookmark" class="nav-link">Bookmarks</a>
-                    <a href="../comics" class="nav-link">Comics</a>
-                </div>
-            </div>
-            <div class="search-container" autocomplete="off">
-                <input type="text" id="search-input" placeholder="Search" autocomplete="off" />
-                <div id="search-results" class="search-results-container">
-                    <h class="search-results"></h>
-                    <h class="search-results2"></h>
-                </div>
-                <svg class="search-icon" viewBox="0 0 24 15">
-                    <path d="M10 6.5C10 8.433 8.433 10 6.5 10C4.567 10 3 8.433 3 6.5C3 4.567 4.567 3 6.5 3C8.433 3 10 4.567 10 6.5ZM9.30884 10.0159C8.53901 10.6318 7.56251 11 6.5 11C4.01472 11 2 8.98528 2 6.5C2 4.01472 4.01472 2 6.5 2C8.98528 2 11 4.01472 11 6.5C11 7.56251 10.6318 8.53901 10.0159 9.30884L12.8536 12.1464C13.0488 12.3417 13.0488 12.6583 12.8536 12.8536C12.6583 13.0488 12.3417 13.0488 12.1464 12.8536L9.30884 10.0159Z"></path>
-                </svg>
-            </div>
-            <div class="user-container">
-                <div class="notification">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="notification-icon">
-                        <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
-                        <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
-                    </svg>
-                </div>
-                <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
-                    <?php $user_icon = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] ? "../images/admin.png" : "../images/user.svg"; ?>
-                    <img src="<?php echo $user_icon; ?>" alt="User Icon" class="user-icon" onclick="toggleUserMenu()" />
-                    <div id="user-dropdown" class="user-dropdown">
-                        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                            <a href="../pending" class="pending-manga">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="approval-icon">
-                                    <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                                Pending
-                            </a>
-                        <?php endif; ?>
-                        <a href="#" onclick="logout(); return false;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" x2="9" y1="12" y2="12"></line>
-                            </svg>
-                            Log Out
-                        </a>
-                    </div>
-                <?php else: ?>
-                    <a href="../login" class="login-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                            <polyline points="10 17 15 12 10 7"></polyline>
-                            <line x1="15" x2="3" y1="12" y2="12"></line>
-                        </svg>
-                        Login
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
+    <!-- Include navbar -->
+    <?php include 'navbar_manga.php'; ?>
 
     <!-- Contenuto principale del manga -->
     <div class="manga-page-container">
