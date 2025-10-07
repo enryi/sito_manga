@@ -1,4 +1,6 @@
-php/db_connection.php
+php/db_connect.php
+php/session.php
+php/index.php
 uploads/
 images/
 .htaccess

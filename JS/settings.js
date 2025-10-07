@@ -92,10 +92,8 @@ function openSettingsPopup(event) {
     loadUserStats();
     toggleUserMenu();
 
-    // Evita che il click sull'icona/menu di apertura venga interpretato come "fuori"
     event.stopPropagation();
 
-    // Aggiungi listener subito dopo l’apertura
     setTimeout(() => {
         document.addEventListener('click', handleOutsideClick);
     }, 0);

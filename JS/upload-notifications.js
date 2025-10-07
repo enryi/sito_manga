@@ -173,7 +173,6 @@ function showUploadLoadingNotifications(message = 'Uploading manga...') {
 
 const uploadNotificationsStyle = document.createElement('style');
 uploadNotificationsStyle.textContent = `
-    /* Upload Notifications System Styles */
     .upload-notifications-container {
         position: fixed;
         top: 20px;
@@ -311,7 +310,6 @@ uploadNotificationsStyle.textContent = `
         animation: uploadSlideOut 0.3s forwards;
     }
 
-    /* Mobile responsive */
     @media (max-width: 480px) {
         .upload-notifications-container {
             left: 10px;

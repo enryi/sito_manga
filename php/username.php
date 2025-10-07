@@ -1,5 +1,5 @@
 <?php
-    session_start();    
+    require_once 'session.php';
     $password_changed = false;
     $registration_success = false;
     $login_error = null;
@@ -18,17 +18,6 @@
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $servername = "localhost";
-        $db_username = "root";
-        $db_password = "";
-        $dbname = "manga";
-        $conn = new mysqli($servername, $db_username, $db_password, $dbname);
-        if ($conn->connect_error) {
-            echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
-            exit();
-        }
         $stmt = $conn->prepare("SELECT password FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();

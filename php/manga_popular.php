@@ -1,6 +1,6 @@
 <?php
-    require_once 'db_connection.php';
-
+    require_once 'session.php';
+    
     $query = "
         SELECT m.id, m.title, m.image_url,
         COUNT(lu.user_id) AS user_votes,
@@ -21,7 +21,6 @@
             $mangaItems[] = $row;
         }
     }
-    $conn->close();
 
     $columns = 4;
     $totalManga = count($mangaItems);
@@ -30,7 +29,6 @@
         $emptyDivCount = $columns - ($totalManga % $columns);
         foreach ($mangaItems as $manga) {
             $mangaTitleSlug = strtolower(str_replace(' ', '_', $manga['title']));
-            // URL pulito senza parametri GET
             $mangaPageUrl = "series/" . $mangaTitleSlug;
             $rating = floatval($manga['rating']);
             

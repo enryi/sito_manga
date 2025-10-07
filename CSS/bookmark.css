@@ -1,5 +1,3 @@
-/* Bookmark Page Styles */
-
 .bookmark-page {
     min-height: 100vh;
     padding: 80px 20px 40px;
@@ -20,7 +18,6 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Filters Section */
 .filters-section {
     background: #2a2a2a;
     border-radius: 10px;
@@ -90,7 +87,6 @@
     color: #fff;
 }
 
-/* Stats Section */
 .stats-section {
     display: flex;
     justify-content: center;
@@ -123,7 +119,6 @@
     letter-spacing: 0.5px;
 }
 
-/* Manga List */
 .manga-list-section {
     background: #2a2a2a;
     border-radius: 10px;
@@ -235,7 +230,6 @@
     font-style: italic;
 }
 
-/* Status Badges */
 .status-badge {
     padding: 3px 8px;
     border-radius: 12px;
@@ -275,7 +269,6 @@
     border: 1px solid #F44336;
 }
 
-/* No bookmarks state */
 .no-bookmarks {
     text-align: center;
     padding: 60px 20px;
@@ -310,7 +303,6 @@
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
-/* Error message */
 .error-message {
     background: linear-gradient(45deg, #f44336, #d32f2f);
     color: #fff;
@@ -321,12 +313,10 @@
     box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
 }
 
-/* Hidden items for filtering */
 .manga-list-item.hidden {
     display: none;
 }
 
-/* Loading animation */
 .loading {
     text-align: center;
     padding: 40px;
@@ -349,7 +339,6 @@
     to { transform: rotate(360deg); }
 }
 
-/* Responsive Design */
 @media screen and (max-width: 768px) {
     .bookmark-page {
         padding: 100px 15px 40px;
@@ -438,7 +427,6 @@
     }
 }
 
-/* Smooth transitions for filtering */
 .manga-list-item {
     animation: fadeIn 0.3s ease-in-out;
 }

@@ -1,5 +1,5 @@
 <?php
-    require_once 'php/index.php';
+    require_once 'php/session.php';
     $_SESSION['current_path'] = $_SERVER['PHP_SELF'];
     if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
         header('Location: php/redirect.php');
@@ -103,7 +103,6 @@
                 box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
             }
 
-            /* Responsive adjustments */
             @media (max-width: 768px) {
                 .empty-state {
                     padding: 3rem 1.5rem;
@@ -129,7 +128,6 @@
                 }
             }
 
-            /* Dark theme adjustments */
             @media (prefers-color-scheme: dark) {
                 .empty-state {
                     background: rgba(255, 255, 255, 0.03);
@@ -141,7 +139,6 @@
                 }
             }
 
-            /* Animation for when empty state appears */
             .empty-state {
                 animation: fadeInUp 0.5s ease-out;
             }
@@ -156,7 +153,6 @@
                     transform: translateY(0);
                 }
             }
-            /* Stili per il lazy loading */
             .loading-indicator {
                 display: flex;
                 justify-content: center;
@@ -192,7 +188,6 @@
                 color: rgba(255, 255, 255, 0.7);
             }
 
-            /* Ottimizzazioni per le performance */
             .manga-list-item {
                 will-change: transform;
                 transform: translateZ(0);
@@ -275,7 +270,6 @@
                     </div>
                     <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
                     <?php
-                        // Check if user has a profile picture
                         $user_pfp = null;
                         if (isset($_SESSION['user_id'])) {
                             $stmt = $conn->prepare("SELECT pfp FROM users WHERE id = ?");
@@ -288,24 +282,20 @@
                             $stmt->close();
                         }
                         
-                        // Check if user has a custom profile picture
                         $has_custom_pfp = $user_pfp && file_exists($user_pfp);
                         $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                     ?>
                     
                     <div class="user-profile-container">
                         <?php if ($has_custom_pfp): ?>
-                            <!-- Custom profile picture -->
                             <img src="<?php echo htmlspecialchars($user_pfp); ?>" 
                                 alt="Profile Picture" 
                                 class="user-icon user-pfp <?php echo $is_admin ? 'admin' : ''; ?>" 
                                 onclick="toggleUserMenu()" />
                         <?php else: ?>
-                            <!-- Default SVG profile picture -->
                             <div class="user-icon user-pfp default-avatar <?php echo $is_admin ? 'admin' : ''; ?>" 
                                 onclick="toggleUserMenu()">
                                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Background circle with gradient -->
                                     <defs>
                                         <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                             <stop offset="0%" style="stop-color:#5a5a5a;stop-opacity:1" />
@@ -314,12 +304,9 @@
                                     </defs>
                                     <circle cx="50" cy="50" r="50" fill="url(#avatarGradient)"/>
                                     
-                                    <!-- Person icon -->
                                     <g fill="#e0e0e0">
-                                        <!-- Head -->
                                         <circle cx="50" cy="35" r="15"/>
                                         
-                                        <!-- Body/Shoulders -->
                                         <path d="M20 85 C20 68, 32 58, 50 58 C68 58, 80 68, 80 85 L80 100 L20 100 Z"/>
                                     </g>
                                 </svg>
@@ -361,7 +348,6 @@
                         </a>
                     </div>
                     
-                    <!-- Settings Popup -->
                     <div id="settings-popup" class="popup">
                         <div class="popup-content settings-popup-content">
                             <span class="close-btn" onclick="closeSettingsPopup()">&times;</span>
@@ -382,16 +368,8 @@
                                     </svg>
                                     Security
                                 </button>
-                                <button class="settings-tab" onclick="showSettingsTab('preferences')">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                    Preferences
-                                </button>
                             </div>
                             
-                            <!-- Profile Tab -->
                             <div id="profile-tab" class="settings-tab-content active">
                                 <div class="settings-section">
                                     <h6>Profile Picture</h6>
@@ -458,7 +436,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Security Tab -->
                             <div id="security-tab" class="settings-tab-content">
                                 <div class="settings-section">
                                     <h6>Change Password</h6>
@@ -493,76 +470,6 @@
                                     </div>
                                     <button type="button" class="btn-danger small" onclick="logoutAllSessions()">Logout All Other Sessions</button>
                                 </div>
-                            </div>
-                            
-                            <!-- Preferences Tab -->
-                            <div id="preferences-tab" class="settings-tab-content">
-                                <div class="settings-section">
-                                    <h6>Reading Preferences</h6>
-                                    <div class="preference-group">
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="auto_bookmark" checked>
-                                            <span class="checkmark"></span>
-                                            Auto-bookmark manga when reading
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="reading_progress" checked>
-                                            <span class="checkmark"></span>
-                                            Save reading progress
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="mature_content">
-                                            <span class="checkmark"></span>
-                                            Show mature content
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="settings-section">
-                                    <h6>Notifications</h6>
-                                    <div class="preference-group">
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="new_chapters" checked>
-                                            <span class="checkmark"></span>
-                                            New chapter notifications
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="manga_updates" checked>
-                                            <span class="checkmark"></span>
-                                            Manga status updates
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="system_notifications" checked>
-                                            <span class="checkmark"></span>
-                                            System notifications
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="settings-section">
-                                    <h6>Display Settings</h6>
-                                    <div class="preference-group">
-                                        <div class="preference-item">
-                                            <label>Items per page:</label>
-                                            <select name="items_per_page" class="form-control small-select">
-                                                <option value="12">12</option>
-                                                <option value="24" selected>24</option>
-                                                <option value="36">36</option>
-                                                <option value="48">48</option>
-                                            </select>
-                                        </div>
-                                        <div class="preference-item">
-                                            <label>Default sort:</label>
-                                            <select name="default_sort" class="form-control small-select">
-                                                <option value="newest" selected>Newest First</option>
-                                                <option value="oldest">Oldest First</option>
-                                                <option value="popular">Most Popular</option>
-                                                <option value="rating">Highest Rated</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                
                                 <div class="settings-section danger-zone">
                                     <h6>Danger Zone</h6>
                                     <div class="danger-actions">
@@ -575,7 +482,6 @@
                         </div>
                     </div>
                     
-                    <!-- Profile Picture Upload Modal -->
                     <div id="pfp-upload-modal" class="popup" style="display: none;">
                         <div class="popup-content pfp-modal-content">
                             <span class="close-btn" onclick="closePfpModal()">&times;</span>
@@ -624,7 +530,6 @@
             <div class="bookmark-container">
                 <h1 class="bookmark-title">MY MANGA LIST</h1>
                 
-                <!-- Filters Section -->
                 <div class="filters-section">
                     <div class="status-filters">
                         <button class="filter-btn active" data-status="all">All</button>
@@ -647,7 +552,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Section -->
                 <div class="stats-section">
                     <div class="stat-item">
                         <span class="stat-number" id="total-manga">0</span>
@@ -663,7 +567,6 @@
                     </div>
                 </div>
 
-                <!-- Manga List -->
                 <div class="manga-list-section">
                     <?php if (isset($bookmarks['error'])): ?>
                         <div class="error-message">
@@ -675,9 +578,7 @@
                             <a href="comics" class="add-manga-btn">Browse Manga</a>
                         </div>
                     <?php else: ?>
-                        <!-- Il container sarà popolato via JavaScript per il lazy loading -->
                         <div class="manga-list" id="manga-list">
-                            <!-- I manga verranno caricati dinamicamente qui -->
                         </div>
                     <?php endif; ?>
                 </div>
@@ -715,7 +616,6 @@
             </div>
         </div>
         <script>
-            // Pass PHP data to JavaScript
             <?php if (!isset($bookmarks['error']) && !empty($bookmarks)): ?>
                 window.mangaData = <?php echo json_encode($bookmarks); ?>;
             <?php else: ?>

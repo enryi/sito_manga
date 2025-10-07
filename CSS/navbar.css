@@ -10,22 +10,6 @@
     box-sizing: border-box;
 }
 
-/* Profile picture personalizzate - dimensioni aumentate e colori corretti */
-.user-pfp {
-    border-radius: 50% !important;
-    object-fit: cover !important;
-    border: 2px solid #fff !important;
-    width: 40px !important;  /* Aumentato da 28px */
-    height: 40px !important;
-    filter: none !important; /* Rimuove inversione colori per pfp personalizzate */
-}
-
-.user-pfp:hover {
-    border-color: #ffff !important;
-    transform: scale(1.05);
-    transition: all 0.3s ease;
-}
-
 .manga-result-container {
     display: flex;
     align-items: center;
@@ -112,7 +96,7 @@
 }
 
 .login-button svg {
-    width: 24px !important;  /* Aumentato da 20px */
+    width: 24px !important;
     height: 24px !important;
 }
 
@@ -138,30 +122,6 @@
     height: 48px;
 }
 
-.user-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 15px;
-    width: auto;
-    position: relative;
-}
-
-/* Icone utente generiche - dimensioni aumentate */
-.user-icon {
-    width: 36px !important;  /* Aumentato da 28px */
-    height: 36px !important;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    /* Mantieni filtro solo per icone SVG predefinite (non pfp) */
-    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-}
-
-/* Override per icone predefinite specifiche */
-.user-icon[src*="admin.png"], .user-icon[src*="user.svg"] {
-    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-}
-
 .nav-links {
     display: flex;
     align-items: center;
@@ -170,36 +130,39 @@
 
 .nav-link {
     margin: 0;
-    padding: 10px;
+    padding: 10px 15px;
     color: #ccc;
     text-decoration: none;
     font-size: 15px;
-    transition: color 0.3s ease;
     height: 28px;
     display: flex;
     align-items: center;
+    position: relative;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .nav-link:hover {
     background-color: #444;
     border-radius: 5px;
-    padding: 10px;
+    color: #fff;
 }
 
-/* Icona notifiche - aumentata per mantenere proporzioni */
-.notification {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px !important;  /* Aumentato da 28px */
-    height: 32px !important;
-    margin-right: 10px;
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+    border-radius: 1px;
 }
 
-.notification-icon {
-    width: 100%;
-    height: 100%;
-    stroke: currentColor;
+.nav-link:hover::after {
+    width: 80%;
 }
 
 .user-dropdown {
@@ -219,7 +182,40 @@
     pointer-events: none;
 }
 
-/* Show state for dropdown */
+.user-dropdown.show,
+.user-dropdown[style*="block"] {
+    display: block !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: all !important;
+}
+
+.user-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+    width: auto;
+    position: relative;
+}
+
+.user-dropdown {
+    display: none !important;
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    background-color: #444 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 5px !important;
+    z-index: 9999 !important;
+    padding: 10px 0 !important;
+    min-width: 150px !important;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
 .user-dropdown.show,
 .user-dropdown[style*="block"] {
     display: block !important;
@@ -235,7 +231,7 @@
     text-decoration: none;
     color: #fff;
     font-size: 12px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s ease;
 }
 
 .user-dropdown a svg {
@@ -247,12 +243,91 @@
 
 .user-dropdown a:hover {
     background-color: #555;
-    color: red;
 }
 
 .user-dropdown a.pending-manga:hover {
     background-color: #555 !important;
     color: rgb(92, 199, 42) !important;
+}
+
+.user-icon {
+    width: 36px !important;
+    height: 36px !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+
+.user-icon[src*="admin.png"], .user-icon[src*="user.svg"] {
+    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+
+.user-pfp {
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid #fff !important;
+    width: 40px !important;
+    height: 40px !important;
+    filter: none !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-icon:hover, .user-pfp:hover {
+    transform: scale(1.05);
+}
+
+.user-icon[src*="admin.png"]:hover {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(280deg) brightness(120%) contrast(100%);
+}
+
+.user-icon:active, .user-pfp:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+.user-profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.admin-gear-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    background: #2A2A2A;
+    border: 2px solid #555;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.admin-gear-badge svg {
+    width: 11px;
+    height: 11px;
+    color: #ccc;
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .user-icon:hover, .user-pfp:hover {
+        transform: scale(1.03);
+    }
+    
+    .admin-gear-badge {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .admin-gear-badge svg {
+        width: 9px;
+        height: 9px;
+    }
 }
 
 .no-result-item {
@@ -283,10 +358,10 @@
     padding: 20px;
     border-radius: 10px;
     width: 50%;
-    max-width: 600px; /* Aggiungi un max-width per un layout migliore su schermi grandi */
-    max-height: 85vh; /* Limita l'altezza del popup */
+    max-width: 600px;
+    max-height: 85vh;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow-y: auto; /* Abilita lo scrolling verticale solo per il contenuto del popup */
+    overflow-y: auto;
 }
 
 body.popup-open {
@@ -374,7 +449,6 @@ select option {
     border-color: #007BFF;
 }
 
-/* ENHANCED SEARCH BAR ANIMATIONS */
 .search-container {
     position: relative;
     width: 300px;
@@ -392,7 +466,6 @@ select option {
     transform: translate(-50%, -50%);
     width: calc(100% + 4px);
     height: calc(100% + 4px);
-    background: linear-gradient(45deg, #4CAF50, #2196F3, #FF9800, #4CAF50);
     background-size: 400% 400%;
     border-radius: 8px;
     opacity: 0;
@@ -428,11 +501,9 @@ select option {
 
 .search-container input:focus {
     background-color: #4a4a4a;
-    border-color: #4CAF50;
-    box-shadow: 
-        0 0 0 2px rgba(76, 175, 80, 0.2),
-        0 4px 12px rgba(76, 175, 80, 0.1),
-        inset 0 1px 3px rgba(0, 0, 0, 0.3);
+    border-color: #fff;
+    color: #fff;
+    box-shadow: #fff;
     transform: scale(1.02);
 }
 
@@ -445,13 +516,10 @@ select option {
     transition: color 0.3s ease;
 }
 
-/* Effetto typing quando si scrive */
 .search-container input:not(:placeholder-shown) {
     background: linear-gradient(135deg, #4a4a4a 0%, #525252 100%);
-    border-color: #4CAF50;
-    box-shadow: 
-        0 0 0 1px rgba(76, 175, 80, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.2);
+    border-color: #fff;
+    box-shadow: #fff;
 }
 
 .search-icon {
@@ -469,31 +537,15 @@ select option {
     transition: all 0.3s ease;
 }
 
-/* Animazione search icon al focus */
 .search-container input:focus ~ .search-icon {
-    stroke: #4CAF50;
+    stroke: #fff;
     transform: translateY(-50%) scale(1.1);
-    filter: drop-shadow(0 0 4px rgba(76, 175, 80, 0.4));
 }
 
-/* Animazione pulsante quando si digita */
 .search-container input:not(:placeholder-shown) ~ .search-icon {
-    stroke: #4CAF50;
-    animation: searchPulse 1.5s ease-in-out infinite;
+    stroke: #fff;
 }
 
-@keyframes searchPulse {
-    0%, 100% { 
-        transform: translateY(-50%) scale(1);
-        opacity: 1;
-    }
-    50% { 
-        transform: translateY(-50%) scale(1.05);
-        opacity: 0.8;
-    }
-}
-
-/* Effetto hover sulla search bar */
 .search-container:hover input {
     border-color: #666;
     background-color: #4a4a4a;
@@ -505,9 +557,7 @@ select option {
     transform: translateY(-50%) scale(1.05);
 }
 
-/* Miglioramenti sottili per i risultati di ricerca esistenti - NON sovrascrivere le classi base */
 
-/* Animazioni aggiuntive che si integrano con search.css esistente */
 .search-result-item {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     border-left: 3px solid transparent !important;
@@ -519,7 +569,6 @@ select option {
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1) !important;
 }
 
-/* Migliora l'animazione delle immagini esistenti */
 .result-image {
     transition: transform 0.3s ease !important;
 }
@@ -536,7 +585,6 @@ select option {
     filter: brightness(110%) !important;
 }
 
-/* Migliora l'animazione del titolo esistente */
 .result-title {
     transition: color 0.3s ease !important;
 }
@@ -545,7 +593,6 @@ select option {
     color: #4CAF50 !important;
 }
 
-/* Evidenziazione del termine cercato - compatibile */
 .search-highlight {
     background: linear-gradient(90deg, #ffc107, #ffdd4a) !important;
     color: #000 !important;
@@ -554,7 +601,6 @@ select option {
     font-weight: 600 !important;
 }
 
-/* Loading animation per la search bar */
 .search-container.loading input {
     background: linear-gradient(90deg, #444 25%, #555 50%, #444 75%);
     background-size: 200% 100%;
@@ -564,116 +610,6 @@ select option {
 @keyframes loadingShimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
-}
-
-/* ENHANCED NOTIFICATION ANIMATIONS */
-.notification {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px !important;
-    height: 32px !important;
-    margin-right: 10px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.notification::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 193, 7, 0.1) 0%, transparent 70%);
-    opacity: 0;
-    transition: all 0.4s ease;
-    z-index: -1;
-}
-
-.notification-icon {
-    width: 100%;
-    height: 100%;
-    stroke: currentColor;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center top;
-}
-
-/* Hover effects */
-.notification:hover {
-    transform: scale(1.1);
-}
-
-.notification:hover::before {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.5);
-    background: radial-gradient(circle, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 50%, transparent 70%);
-}
-
-.notification:hover .notification-icon {
-    stroke: #ffc107;
-    filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.3));
-    animation: bellShake 0.6s ease-in-out;
-}
-
-/* Animazione oscillazione campanella */
-@keyframes bellShake {
-    0% { transform: rotate(0deg); }
-    10% { transform: rotate(10deg); }
-    20% { transform: rotate(-8deg); }
-    30% { transform: rotate(6deg); }
-    40% { transform: rotate(-4deg); }
-    50% { transform: rotate(2deg); }
-    60% { transform: rotate(-1deg); }
-    70% { transform: rotate(0.5deg); }
-    100% { transform: rotate(0deg); }
-}
-
-/* Effetto pulsante quando c'è una nuova notifica */
-.notification.has-new {
-    animation: pulse 2s infinite;
-}
-
-.notification.has-new::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 8px;
-    height: 8px;
-    background: #ff4444;
-    border-radius: 50%;
-    border: 2px solid #333;
-    animation: notificationBadge 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-@keyframes notificationBadge {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% { 
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
-}
-
-/* Effetto ripple al click */
-.notification:active {
-    transform: scale(0.95);
-}
-
-.notification:active::before {
-    animation: ripple 0.6s linear;
 }
 
 @keyframes ripple {
@@ -688,327 +624,50 @@ select option {
     }
 }
 
-/* ENHANCED PROFILE PICTURE ANIMATIONS */
-.user-icon, .user-pfp {
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center;
-}
-
-/* Effetto glow per tutte le icone utente */
-.user-icon::before, .user-pfp::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60%;
-    height: 60%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, transparent 70%);
-    opacity: 0;
-    transition: all 0.4s ease;
-    z-index: -1;
-    pointer-events: none;
-}
-
-.user-pfp:hover {
-    transform: scale(1.15);
-    border-color: #4CAF50 !important;
-    border-width: 3px !important;
-    filter: brightness(110%) drop-shadow(0 0 8px rgba(76, 175, 80, 0.3));
-}
-
-.user-pfp:hover::before {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.5);
-    background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 50%, transparent 70%);
-}
-
-/* Animazione di bouncing per le icone admin */
-.user-icon[src*="admin.png"]:hover {
-    animation: adminBounce 0.6s ease-in-out;
-    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(280deg) brightness(120%) contrast(100%) drop-shadow(0 0 10px rgba(255, 193, 7, 0.6));
-}
-
-.user-icon[src*="admin.png"]:hover::before {
-    background: radial-gradient(circle, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 50%, transparent 70%);
-}
-
-@keyframes adminBounce {
-    0%, 100% { transform: scale(1.15) rotate(5deg); }
-    25% { transform: scale(1.2) rotate(-3deg); }
-    50% { transform: scale(1.18) rotate(7deg); }
-    75% { transform: scale(1.16) rotate(-2deg); }
-}
-
-/* Effetto floating per foto profilo personalizzate */
-.user-pfp:hover {
-    animation: profileFloat 0.8s ease-in-out;
-}
-
-@keyframes profileFloat {
-    0%, 100% { transform: scale(1.15) translateY(0px); }
-    25% { transform: scale(1.17) translateY(-2px); }
-    50% { transform: scale(1.16) translateY(-3px); }
-    75% { transform: scale(1.18) translateY(-1px); }
-}
-
-/* Effetto click attivo */
-.user-icon:active, .user-pfp:active {
-    transform: scale(1.05);
-    transition: transform 0.1s ease;
-}
-
-/* Effetto ripple al click */
-.user-icon:active::before, .user-pfp:active::before {
-    animation: profileRipple 0.5s linear;
-}
-
-@keyframes profileRipple {
-    0% {
-        transform: translate(-50%, -50%) scale(0);
-        opacity: 1;
-        background: radial-gradient(circle, rgba(76, 175, 80, 0.4) 0%, transparent 70%);
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1.5);
-        opacity: 0;
-    }
-}
-
-/* Animazione di stato online (opzionale) */
-.user-pfp.online::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
-    background: #4CAF50;
-    border: 2px solid #333;
-    border-radius: 50%;
-    animation: onlineStatus 2s ease-in-out infinite;
-}
-
-@keyframes onlineStatus {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% { 
-        transform: scale(1.1);
-        opacity: 0.8;
-        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-    }
-}
-
-/* Container per profile picture e gear badge */
-.user-profile-container {
-    position: relative;
-    display: inline-block;
-}
-
-/* REDESIGNED ADMIN GEAR BADGE - Dark Theme Style */
-.admin-gear-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 18px;
-    height: 18px;
-    background: linear-gradient(135deg, #2A2A2A 0%, #404040 50%, #1A1A1A 100%);
-    border: 2px solid #555;
-    border-radius: 50%;
+.notification {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.4),
-        inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-}
-
-.admin-gear-badge::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.6s ease;
-}
-
-.admin-gear-badge svg {
-    width: 11px;
-    height: 11px;
-    color: #ccc;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
-}
-
-/* Enhanced hover effects per il gear */
-.user-profile-container:hover .admin-gear-badge {
-    transform: scale(1.15);
-    background: linear-gradient(135deg, #404040 0%, #555 50%, #2A2A2A 100%);
-    border-color: #777;
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.5),
-        0 0 20px rgba(76, 175, 80, 0.2),
-        inset 0 1px 2px rgba(255, 255, 255, 0.15);
-}
-
-.user-profile-container:hover .admin-gear-badge::before {
-    left: 100%;
-}
-
-.user-profile-container:hover .admin-gear-badge svg {
-    transform: rotate(180deg);
-    color: #4CAF50;
-    filter: drop-shadow(0 0 4px rgba(76, 175, 80, 0.4));
-}
-
-/* Animazione pulsante per admin attivi */
-.admin-gear-badge.active {
-    animation: adminPulse 2s ease-in-out infinite;
-}
-
-@keyframes adminPulse {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 
-            0 2px 8px rgba(0, 0, 0, 0.4),
-            inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    }
-    50% { 
-        transform: scale(1.05);
-        box-shadow: 
-            0 4px 12px rgba(0, 0, 0, 0.5),
-            0 0 15px rgba(76, 175, 80, 0.3),
-            inset 0 1px 2px rgba(255, 255, 255, 0.2);
-    }
-}
-
-/* Effetto click per gear */
-.admin-gear-badge:active {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
-}
-
-/* Variante alternativa - gear con bordo colorato sottile */
-.admin-gear-badge.colored-border {
-    border: 2px solid transparent;
-    background: 
-        linear-gradient(135deg, #2A2A2A 0%, #404040 50%, #1A1A1A 100%),
-        linear-gradient(45deg, #4CAF50, #2196F3);
-    background-clip: padding-box, border-box;
-    background-origin: padding-box, border-box;
-}
-
-.user-profile-container:hover .admin-gear-badge.colored-border {
-    background: 
-        linear-gradient(135deg, #404040 0%, #555 50%, #2A2A2A 100%),
-        linear-gradient(45deg, #4CAF50, #2196F3, #FF9800, #4CAF50);
-    background-size: 100% 100%, 200% 200%;
-    animation: borderShift 2s linear infinite;
-}
-
-@keyframes borderShift {
-    0% { background-position: 0% 0%, 0% 50%; }
-    50% { background-position: 0% 0%, 100% 50%; }
-    100% { background-position: 0% 0%, 200% 50%; }
-}
-
-/* Responsive adjustments per mantenere l'animazione su mobile */
-@media (max-width: 768px) {
-    .notification {
-        width: 28px !important;
-        height: 28px !important;
-    }
-    
-    .notification:hover {
-        transform: scale(1.08);
-    }
-    
-    .user-icon:hover, .user-pfp:hover {
-        transform: scale(1.1);
-    }
-    
-    .user-icon[src*="admin.png"]:hover {
-        animation: none;
-        transform: scale(1.1) rotate(3deg);
-    }
-    
-    .admin-gear-badge {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .admin-gear-badge svg {
-        width: 9px;
-        height: 9px;
-    }
-    
-    .search-container {
-        width: 250px;
-    }
-    
-    .search-container:hover::before {
-        opacity: 0.7;
-    }
-}
-.nav-link {
-    margin: 0;
-    padding: 10px 15px;
-    color: #ccc;
-    text-decoration: none;
-    font-size: 15px;
-    height: 28px;
-    display: flex;
-    align-items: center;
+    width: 44px !important;
+    height: 44px !important;
+    margin-right: 10px;
+    cursor: pointer;
     position: relative;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 50%;
 }
 
-/* Semplice underline carino */
-.nav-link::after {
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    stroke: currentColor;
+    transition: all 0.2s ease;
+}
+
+.notification:hover {
+    background-color: #444;
+}
+
+.notification:hover .notification-icon {
+    stroke: #fff;
+}
+
+.notification.has-new::after {
     content: '';
     position: absolute;
-    bottom: 0px;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: #4CAF50;
-    transform: translateX(-50%);
-    transition: width 0.3s ease;
-    border-radius: 1px;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background: #ff4444;
+    border-radius: 50%;
+    border: 2px solid #333;
 }
 
-.nav-link:hover {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.05);
-    transform: translateY(-1px);
+.notification:active {
+    transform: scale(0.98);
 }
 
-.nav-link:hover::after {
-    width: 70%;
-}
-
-.nav-link[href*="bookmark"]::after {
-    background: #FF9800;
-}
-
-.nav-link[href*="comics"]::after {
-    background: #2196F3;
-}
-
-/* DEFAULT AVATAR SVG STYLES */
 .default-avatar {
     border-radius: 50% !important;
     overflow: hidden !important;
@@ -1022,7 +681,7 @@ select option {
     cursor: pointer !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
-    filter: none !important; /* Rimuove qualsiasi filtro */
+    filter: none !important;
 }
 
 .default-avatar svg {
@@ -1032,7 +691,6 @@ select option {
     transition: all 0.3s ease !important;
 }
 
-/* Hover effects per l'avatar predefinito */
 .default-avatar:hover {
     transform: scale(1.15) !important;
     border-color: #4CAF50 !important;
@@ -1044,7 +702,6 @@ select option {
     filter: brightness(110%) !important;
 }
 
-/* Effetto glow per avatar predefinito */
 .default-avatar::before {
     content: '';
     position: absolute;
@@ -1067,23 +724,19 @@ select option {
     background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 50%, transparent 70%);
 }
 
-/* Animazione floating per avatar predefinito */
 .default-avatar:hover {
     animation: profileFloat 0.8s ease-in-out;
 }
 
-/* Effetto click attivo per avatar predefinito */
 .default-avatar:active {
     transform: scale(1.05) !important;
     transition: transform 0.1s ease !important;
 }
 
-/* Effetto ripple al click per avatar predefinito */
 .default-avatar:active::before {
     animation: profileRipple 0.5s linear;
 }
 
-/* Variante per admin con avatar predefinito */
 .default-avatar.admin:hover svg {
     filter: brightness(120%) drop-shadow(0 0 8px rgba(255, 193, 7, 0.4)) !important;
 }
@@ -1092,7 +745,6 @@ select option {
     background: radial-gradient(circle, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 50%, transparent 70%);
 }
 
-/* Responsive per avatar predefinito */
 @media (max-width: 768px) {
     .default-avatar {
         width: 36px !important;
@@ -1103,7 +755,6 @@ select option {
         transform: scale(1.1) !important;
     }
 }
-/* SETTINGS POPUP STYLES */
 .settings-popup-content {
     width: 70%;
     max-width: 800px;
@@ -1181,7 +832,6 @@ select option {
     gap: 8px;
 }
 
-/* Profile Picture Display */
 .current-pfp-display {
     display: flex;
     align-items: center;
@@ -1216,7 +866,6 @@ select option {
     gap: 10px;
 }
 
-/* Form Styles */
 .input-group {
     display: flex;
     gap: 10px;
@@ -1288,7 +937,6 @@ select option {
     background: #4CAF50;
 }
 
-/* Buttons */
 .btn-primary, .btn-secondary, .btn-danger {
     padding: 10px 20px;
     border: none;
@@ -1334,7 +982,6 @@ select option {
     font-size: 12px;
 }
 
-/* Account Info */
 .account-info {
     background: rgba(255, 255, 255, 0.02);
     padding: 15px;
@@ -1369,7 +1016,6 @@ select option {
     font-weight: 600;
 }
 
-/* Session Info */
 .session-info {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid #444;
@@ -1413,33 +1059,6 @@ select option {
     color: white;
 }
 
-/* Preferences */
-.preference-group {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.preference-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
-    transition: background-color 0.3s ease;
-}
-
-.preference-item:hover {
-    background-color: rgba(255, 255, 255, 0.02);
-}
-
-.preference-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-}
-
 .checkmark {
     width: 20px;
     height: 20px;
@@ -1449,30 +1068,6 @@ select option {
     transition: all 0.3s ease;
 }
 
-.preference-item input[type="checkbox"]:checked + .checkmark {
-    background-color: #4CAF50;
-    border-color: #4CAF50;
-}
-
-.preference-item input[type="checkbox"]:checked + .checkmark::after {
-    content: '✓';
-    position: absolute;
-    color: white;
-    font-size: 14px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.preference-item label {
-    color: #ccc;
-    font-size: 14px;
-    cursor: pointer;
-    margin: 0;
-    flex: 1;
-}
-
-/* Danger Zone */
 .danger-zone {
     border-color: #f44336 !important;
     background: rgba(244, 67, 54, 0.05);
@@ -1499,7 +1094,6 @@ select option {
     margin-top: 5px;
 }
 
-/* Profile Picture Upload Modal */
 .pfp-modal-content {
     width: 500px;
     max-width: 90vw;
@@ -1574,7 +1168,6 @@ select option {
     gap: 10px;
 }
 
-/* Mobile Responsive */
 @media (max-width: 768px) {
     .settings-popup-content {
         width: 95%;
@@ -1623,23 +1216,20 @@ select option {
 }
 
 .popup-content::-webkit-scrollbar {
-    width: 10px; /* Larghezza della barra di scorrimento verticale */
+    width: 10px;
 }
 
-/* Sfondo della scrollbar */
 .popup-content::-webkit-scrollbar-track {
-    background: #444; /* Colore scuro per il track */
+    background: #444;
     border-radius: 5px;
 }
 
-/* Stile del "pollice" (il pezzo che si muove) */
 .popup-content::-webkit-scrollbar-thumb {
-    background-color: #777; /* Colore del pollice */
+    background-color: #777;
     border-radius: 5px;
-    border: 2px solid #444; /* Aggiunge un bordo per renderlo più visibile */
+    border: 2px solid #444;
 }
 
-/* Stile del "pollice" al passaggio del mouse */
 .popup-content::-webkit-scrollbar-thumb:hover {
-    background-color: #999; /* Colore più chiaro al passaggio del mouse */
+    background-color: #999;
 }

@@ -1,20 +1,10 @@
 <?php
-    session_start();
     require_once 'notification_functions.php';
-    
+    require_once 'session.php';
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manga_id'])) {
         $manga_id = intval($_POST['manga_id']);
         $disapproval_reason = isset($_POST['reason']) ? trim($_POST['reason']) : 'No reason provided';
-        
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "manga";
-        
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        if ($conn->connect_error) {
-            die(json_encode(['success' => false, 'message' => 'Database connection failed.']));
-        }
 
         $mangaQuery = "SELECT title, image_url, submitted_by FROM manga WHERE id = ?";
         $mangaStmt = $conn->prepare($mangaQuery);

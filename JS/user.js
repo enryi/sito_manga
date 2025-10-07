@@ -48,3 +48,60 @@ function closeAddMangaPopup() {
         }
     }
 }
+
+// OPZIONE 3: Soluzione JavaScript per ellipsis intelligente
+// Aggiungi questo script dopo che i titoli sono stati caricati
+
+function applySmartEllipsis() {
+    const titles = document.querySelectorAll('.manga-item .manga-title');
+    
+    titles.forEach(title => {
+        const originalText = title.textContent.trim();
+        const maxWidth = title.offsetWidth;
+        
+        // Crea un elemento temporaneo per misurare il testo
+        const testElement = document.createElement('span');
+        testElement.style.font = window.getComputedStyle(title).font;
+        testElement.style.fontSize = window.getComputedStyle(title).fontSize;
+        testElement.style.fontWeight = window.getComputedStyle(title).fontWeight;
+        testElement.style.fontFamily = window.getComputedStyle(title).fontFamily;
+        testElement.style.letterSpacing = window.getComputedStyle(title).letterSpacing;
+        testElement.style.position = 'absolute';
+        testElement.style.visibility = 'hidden';
+        testElement.style.whiteSpace = 'nowrap';
+        document.body.appendChild(testElement);
+        
+        // Se il testo originale è troppo lungo
+        testElement.textContent = originalText;
+        if (testElement.offsetWidth > maxWidth) {
+            const words = originalText.split(' ');
+            let truncatedText = '';
+            
+            // Aggiungi parole una alla volta finché non supera la larghezza
+            for (let i = 0; i < words.length; i++) {
+                const testText = truncatedText + (truncatedText ? ' ' : '') + words[i] + '...';
+                testElement.textContent = testText;
+                
+                if (testElement.offsetWidth > maxWidth) {
+                    break;
+                }
+                
+                truncatedText += (truncatedText ? ' ' : '') + words[i];
+            }
+            
+            // Applica il testo troncato con ellipsis
+            if (truncatedText && truncatedText !== originalText) {
+                title.textContent = truncatedText + '...';
+                title.title = originalText; // Tooltip con testo completo
+            }
+        }
+        
+        document.body.removeChild(testElement);
+    });
+}
+
+// Esegui la funzione quando il DOM è caricato
+document.addEventListener('DOMContentLoaded', applySmartEllipsis);
+
+// Riesegui se necessario dopo aggiornamenti AJAX
+// window.addEventListener('resize', applySmartEllipsis);

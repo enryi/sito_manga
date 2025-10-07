@@ -289,9 +289,7 @@
     height: 20px;
     fill: #ffc107;
 }
-/* Aggiungi questi stili alla fine del tuo file series.css */
 
-/* Synopsis section */
 .synopsis-section {
     margin-bottom: 25px;
 }
@@ -303,7 +301,6 @@
     margin-bottom: 8px;
 }
 
-/* Modifica la manga-description esistente */
 .manga-description {
     color: #A2A2A2;
     line-height: 1.6;
@@ -315,7 +312,6 @@
     margin-top: 0;
 }
 
-/* Details grid - sostituisce manga-details */
 .manga-details-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -340,7 +336,6 @@
     font-size: 14px;
 }
 
-/* Genres section */
 .genres-section {
     margin-bottom: 25px;
 }
@@ -373,20 +368,6 @@
     color: #ffc107;
 }
 
-/* Rimuovi o commenta i vecchi stili manga-details se presenti */
-/*
-.manga-details {
-    margin-bottom: 25px;
-}
-
-.manga-detail-item {
-    display: flex;
-    margin-bottom: 12px;
-    align-items: flex-start;
-}
-*/
-
-/* Aggiorna responsive */
 @media (max-width: 768px) {
     .manga-details-grid {
         grid-template-columns: 1fr;

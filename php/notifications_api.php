@@ -1,16 +1,6 @@
 <?php
-    session_start();
     require_once 'notification_functions.php';
-
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "manga";
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die(json_encode(['success' => false, 'message' => 'Database connection failed']));
-    }
+    require_once 'session.php';
 
     if (!isset($_SESSION['user_id'])) {
         die(json_encode(['success' => false, 'message' => 'User not logged in']));
@@ -78,7 +68,6 @@
             break;
     }
 
-    $conn->close();
 
     function getNotificationsWithTimeAgo($conn, $user_id) {
         $query = "SELECT *, 

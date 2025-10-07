@@ -51,12 +51,10 @@ function showAuthNotification(type, title, message, duration = 5000) {
     
     container.appendChild(notification);
     
-    // Trigger animation
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
     
-    // Auto hide
     if (duration > 0) {
         setTimeout(() => {
             hideAuthNotification(id);
@@ -91,24 +89,19 @@ function hideAllAuthNotifications() {
     }
 }
 
-// Check URL parameters and show notifications
 function checkAuthNotifications() {
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Check for registration success
     if (urlParams.get('registered') === '1') {
         showAuthNotification('success', 'Registration Successful!', 'Welcome! Your account has been created successfully. You can now login.');
-        // Clean URL
         cleanAuthUrl();
     }
     
-    // Check for password reset
     if (urlParams.get('password_reset') === '1') {
         showAuthNotification('success', 'Password Reset!', 'Your password has been changed successfully. You can now login with your new password.');
         cleanAuthUrl();
     }
     
-    // Check for logout
     if (urlParams.get('logout') === '1') {
         showAuthNotification('info', 'Logged Out', 'You have been successfully logged out. See you soon!');
         cleanAuthUrl();
@@ -122,7 +115,6 @@ function cleanAuthUrl() {
     }
 }
 
-// Add CSS styles
 const authNotificationStyle = document.createElement('style');
 authNotificationStyle.textContent = `
     /* Auth Notifications System */
@@ -302,7 +294,6 @@ authNotificationStyle.textContent = `
 `;
 document.head.appendChild(authNotificationStyle);
 
-// Initialize on DOM load
 document.addEventListener('DOMContentLoaded', function() {
     checkAuthNotifications();
 });

@@ -408,10 +408,8 @@ class BookmarkManager {
             }
         });
         
-        // Calculate average score
         const avgScore = scoredCount > 0 ? (totalScores / scoredCount) : 0;
         
-        // Update DOM elements
         if (this.totalMangaEl) {
             this.animateNumber(this.totalMangaEl, totalCount);
         }
@@ -448,35 +446,29 @@ class BookmarkManager {
         }, 25);
     }
     
-    // Search functionality
     searchManga(searchTerm) {
         const term = searchTerm.toLowerCase().trim();
         
         if (term === '') {
-            // Reset alla lista completa
             this.applyFilters();
             return;
         }
         
-        // Filtra i dati in base al termine di ricerca
         const searchResults = this.mangaData.filter(manga => {
             const matchesSearch = manga.title.toLowerCase().includes(term);
             const matchesStatus = this.currentStatus === 'all' || manga.status === this.currentStatus;
             return matchesSearch && matchesStatus;
         });
         
-        // Applica il filtro con i risultati della ricerca
         this.filteredData = this.sortData(searchResults);
         this.renderedCount = 0;
         
-        // Pulisci e ricarica
         if (this.mangaList) {
             this.mangaList.innerHTML = '';
         }
         
         this.updateStats(this.filteredData);
         
-        // Controlla se ci sono risultati o mostra messaggio di ricerca vuota
         if (this.filteredData.length === 0) {
             this.showSearchEmptyState(term);
         } else {
@@ -506,7 +498,6 @@ class BookmarkManager {
         this.mangaList.innerHTML = emptyStateHTML;
     }
     
-    // Get status counts
     getStatusCounts() {
         const counts = {
             all: this.mangaData.length,
@@ -527,12 +518,10 @@ class BookmarkManager {
         return counts;
     }
     
-    // Reset all filters
     resetFilters() {
         this.currentStatus = 'all';
         this.currentSort = 'title_asc';
         
-        // Reset UI
         this.filterBtns.forEach(btn => {
             btn.classList.remove('active');
             if (btn.dataset.status === 'all') {
@@ -544,7 +533,6 @@ class BookmarkManager {
             this.sortSelect.value = 'title_asc';
         }
         
-        // Clear search if exists
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
             searchInput.value = '';
@@ -553,7 +541,6 @@ class BookmarkManager {
         this.applyFilters();
     }
     
-    // Cleanup method
     destroy() {
         if (this.observer) {
             this.observer.disconnect();
@@ -569,29 +556,23 @@ class BookmarkManager {
     }
 }
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if we're on the bookmark page and have manga data
     if (window.mangaData && document.getElementById('manga-list')) {
         window.bookmarkManager = new BookmarkManager();
     }
 });
 
-// Add keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     if (!window.bookmarkManager) return;
     
-    // Press 'r' to reset filters
     if (e.key === 'r' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
         const activeElement = document.activeElement;
-        // Only if not typing in an input
         if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA') {
             window.bookmarkManager.resetFilters();
         }
     }
 });
 
-// Add search integration
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     if (searchInput && window.bookmarkManager) {
@@ -601,12 +582,11 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 window.bookmarkManager.searchManga(e.target.value);
-            }, 300); // Debounce search
+            }, 300);
         });
     }
 });
 
-// Cleanup on page unload
 window.addEventListener('beforeunload', () => {
     if (window.bookmarkManager) {
         window.bookmarkManager.destroy();

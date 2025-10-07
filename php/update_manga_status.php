@@ -1,7 +1,7 @@
 <?php
     session_start();
     header('Content-Type: application/json');
-    require_once 'db_connection.php';
+    require_once 'session.php';
 
     if (!isset($_SESSION['user_id'])) {
         http_response_code(401);
@@ -25,8 +25,9 @@
         $userId = $_SESSION['user_id'];
         $mangaId = intval($input['manga_id']);
         $status = $input['status'];
-        $chapters = intval($input['chapters']);
+        $chapters = floatval($input['chapters']);
         $rating = !empty($input['rating']) ? floatval($input['rating']) : null;
+        $linkSite = !empty($input['link_site']) ? $input['link_site'] : null;
         
         $validStatuses = ['reading', 'completed', 'dropped', 'plan_to_read'];
         if (!in_array($status, $validStatuses)) {
@@ -66,14 +67,14 @@
         $checkResult = $checkStmt->get_result();
         
         if ($checkResult->num_rows > 0) {
-            $updateQuery = "UPDATE user_list SET status = ?, chapters = ?, rating = ?, updated_at = NOW() WHERE user_id = ? AND manga_id = ?";
+            $updateQuery = "UPDATE user_list SET status = ?, chapters = ?, rating = ?, link_site = ?, updated_at = NOW() WHERE user_id = ? AND manga_id = ?";
             $updateStmt = $conn->prepare($updateQuery);
             
             if (!$updateStmt) {
                 throw new Exception('Error preparing the update: ' . $conn->error);
             }
             
-            $updateStmt->bind_param("sidii", $status, $chapters, $rating, $userId, $mangaId);
+            $updateStmt->bind_param("sddsii", $status, $chapters, $rating, $linkSite, $userId, $mangaId);
             
             if (!$updateStmt->execute()) {
                 throw new Exception('Error executing the update: ' . $updateStmt->error);
@@ -83,14 +84,14 @@
             $action = 'updated';
             
         } else {
-            $insertQuery = "INSERT INTO user_list (user_id, manga_id, status, chapters, rating, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+            $insertQuery = "INSERT INTO user_list (user_id, manga_id, status, chapters, rating, link_site, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
             $insertStmt = $conn->prepare($insertQuery);
             
             if (!$insertStmt) {
                 throw new Exception('Error preparing the insert: ' . $conn->error);
             }
             
-            $insertStmt->bind_param("iisid", $userId, $mangaId, $status, $chapters, $rating);
+            $insertStmt->bind_param("iisdds", $userId, $mangaId, $status, $chapters, $rating, $linkSite);
             
             if (!$insertStmt->execute()) {
                 throw new Exception('Error executing the insert: ' . $insertStmt->error);
@@ -135,6 +136,7 @@
                     'status' => $status,
                     'chapters' => $chapters,
                     'rating' => $rating,
+                    'link_site' => $linkSite,
                     'user_stats' => $userStats,
                     'manga_avg_rating' => round(floatval($mangaRating['avg_rating']), 1),
                     'manga_rating_count' => intval($mangaRating['rating_count'])
@@ -160,7 +162,7 @@
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'error' => 'Interlal Server Error',
+            'error' => 'Internal Server Error',
             'timestamp' => time()
         ]);
         

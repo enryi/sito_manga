@@ -1,14 +1,6 @@
 <?php
-    require_once 'db_connection.php';
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "manga";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+    require_once 'session.php';
+    
     $query = "
         SELECT 
             m.id, 
@@ -34,7 +26,6 @@
         $rank = 1;
         while ($row = $result->fetch_assoc()) {
             $mangaTitleSlug = strtolower(str_replace(' ', '_', $row['title']));
-            // URL pulito senza parametri GET
             $mangaPageUrl = "series/" . $mangaTitleSlug;
             $rating = floatval($row['rating']);
             
@@ -85,5 +76,4 @@
         echo '<p class="no-data">No manga found.</p>';
     }
 
-    $conn->close();
 ?>

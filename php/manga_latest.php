@@ -1,15 +1,6 @@
 <?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "manga";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Query aggiornata per includere il rating
+    require_once 'session.php';
+    
     $sql = "SELECT m.id, m.title, m.image_url,
         COALESCE(FLOOR(AVG(lu.rating) * 10) / 10, 0) AS rating
         FROM manga m
@@ -26,7 +17,6 @@
             $mangaItems[] = $row;
         }
     }
-    $conn->close();
 
     $columns = 4;
     $totalManga = count($mangaItems);
@@ -35,38 +25,31 @@
         $emptyDivCount = $columns - ($totalManga % $columns);
         foreach ($mangaItems as $manga) {
             $mangaTitleSlug = strtolower(str_replace(' ', '_', $manga['title']));
-            // URL pulito senza parametri GET
             $mangaPageUrl = "series/" . $mangaTitleSlug;
             $rating = floatval($manga['rating']);
             
             echo '<div class="manga-item" onclick="window.location.href=\'' . htmlspecialchars($mangaPageUrl) . '\'">';
             echo '<img src="' . htmlspecialchars($manga['image_url']) . '" alt="' . htmlspecialchars($manga['title']) . '">';
             
-            // Overlay del rating che appare in hover
             echo '<div class="rating-overlay">';
             echo '<div class="rating-content">';
             
-            // Titolo dell'overlay su una sola riga
             echo '<div class="overlay-title">' . htmlspecialchars($manga['title']) . '</div>';
             
-            // Container per stelle e voto numerico sulla stessa riga
             echo '<div class="rating-row">';
             
-            // Sempre 5 stelle
             echo '<div class="stars">';
-            $ratingOutOfFive = $rating / 2; // Converti da 10 a 5
+            $ratingOutOfFive = $rating / 2;
             $fullStars = floor($ratingOutOfFive);
             $hasHalfStar = ($ratingOutOfFive - $fullStars) >= 0.5;
             $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
             
-            // Stelle piene
             for ($i = 0; $i < $fullStars; $i++) {
                 echo '<svg class="manga-star full" viewBox="0 0 24 24" fill="#ffc107" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/>
                 </svg>';
             }
             
-            // Stella mezza (se presente)
             if ($hasHalfStar) {
                 echo '<svg class="manga-star half" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -79,7 +62,6 @@
                 </svg>';
             }
             
-            // Stelle vuote
             for ($i = 0; $i < $emptyStars; $i++) {
                 echo '<svg class="manga-star empty" viewBox="0 0 24 24" fill="#444" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/>
@@ -87,14 +69,13 @@
             }
             echo '</div>';
             
-            // Voto numerico accanto alle stelle
             if ($rating > 0) {
                 echo '<div class="rating-number">' . htmlspecialchars($rating, ENT_QUOTES, 'UTF-8') . '</div>';
             } else {
                 echo '<div class="rating-number">N/A</div>';
             }
             
-            echo '</div>'; // Chiude rating-row
+            echo '</div>';
             echo '</div>';
             echo '</div>';
             

@@ -1,20 +1,8 @@
 <?php
-// search_genre.php - Ricerca manga per genere (moved to root folder)
-require_once 'php/index.php';
-$_SESSION['current_path'] = $_SERVER['PHP_SELF'];
+    require_once 'php/session.php';
+    $_SESSION['current_path'] = $_SERVER['PHP_SELF'];
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "manga";
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Ottieni il genere dalla query string
-$searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
+    $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,7 +31,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
         <script src="JS/auth-notifications.js"></script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
-        <!-- Navbar -->
         <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">
@@ -75,7 +62,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                     </div>
                     <?php if (isset($_SESSION['logged_in']) && isset($_SESSION['username'])): ?>
                     <?php
-                        // Check if user has a profile picture
                         $user_pfp = null;
                         if (isset($_SESSION['user_id'])) {
                             $stmt = $conn->prepare("SELECT pfp FROM users WHERE id = ?");
@@ -88,24 +74,20 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                             $stmt->close();
                         }
                         
-                        // Check if user has a custom profile picture
                         $has_custom_pfp = $user_pfp && file_exists($user_pfp);
                         $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
                     ?>
                     
                     <div class="user-profile-container">
                         <?php if ($has_custom_pfp): ?>
-                            <!-- Custom profile picture -->
                             <img src="<?php echo htmlspecialchars($user_pfp); ?>" 
                                 alt="Profile Picture" 
                                 class="user-icon user-pfp <?php echo $is_admin ? 'admin' : ''; ?>" 
                                 onclick="toggleUserMenu()" />
                         <?php else: ?>
-                            <!-- Default SVG profile picture -->
                             <div class="user-icon user-pfp default-avatar <?php echo $is_admin ? 'admin' : ''; ?>" 
                                 onclick="toggleUserMenu()">
                                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                                    <!-- Background circle with gradient -->
                                     <defs>
                                         <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                             <stop offset="0%" style="stop-color:#5a5a5a;stop-opacity:1" />
@@ -114,12 +96,9 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                     </defs>
                                     <circle cx="50" cy="50" r="50" fill="url(#avatarGradient)"/>
                                     
-                                    <!-- Person icon -->
                                     <g fill="#e0e0e0">
-                                        <!-- Head -->
                                         <circle cx="50" cy="35" r="15"/>
                                         
-                                        <!-- Body/Shoulders -->
                                         <path d="M20 85 C20 68, 32 58, 50 58 C68 58, 80 68, 80 85 L80 100 L20 100 Z"/>
                                     </g>
                                 </svg>
@@ -161,7 +140,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                         </a>
                     </div>
                     
-                    <!-- Settings Popup -->
                     <div id="settings-popup" class="popup">
                         <div class="popup-content settings-popup-content">
                             <span class="close-btn" onclick="closeSettingsPopup()">&times;</span>
@@ -182,16 +160,8 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                     </svg>
                                     Security
                                 </button>
-                                <button class="settings-tab" onclick="showSettingsTab('preferences')">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                    Preferences
-                                </button>
                             </div>
                             
-                            <!-- Profile Tab -->
                             <div id="profile-tab" class="settings-tab-content active">
                                 <div class="settings-section">
                                     <h6>Profile Picture</h6>
@@ -258,7 +228,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                 </div>
                             </div>
                             
-                            <!-- Security Tab -->
                             <div id="security-tab" class="settings-tab-content">
                                 <div class="settings-section">
                                     <h6>Change Password</h6>
@@ -293,76 +262,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                     </div>
                                     <button type="button" class="btn-danger small" onclick="logoutAllSessions()">Logout All Other Sessions</button>
                                 </div>
-                            </div>
-                            
-                            <!-- Preferences Tab -->
-                            <div id="preferences-tab" class="settings-tab-content">
-                                <div class="settings-section">
-                                    <h6>Reading Preferences</h6>
-                                    <div class="preference-group">
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="auto_bookmark" checked>
-                                            <span class="checkmark"></span>
-                                            Auto-bookmark manga when reading
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="reading_progress" checked>
-                                            <span class="checkmark"></span>
-                                            Save reading progress
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="mature_content">
-                                            <span class="checkmark"></span>
-                                            Show mature content
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="settings-section">
-                                    <h6>Notifications</h6>
-                                    <div class="preference-group">
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="new_chapters" checked>
-                                            <span class="checkmark"></span>
-                                            New chapter notifications
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="manga_updates" checked>
-                                            <span class="checkmark"></span>
-                                            Manga status updates
-                                        </label>
-                                        <label class="preference-item">
-                                            <input type="checkbox" name="system_notifications" checked>
-                                            <span class="checkmark"></span>
-                                            System notifications
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="settings-section">
-                                    <h6>Display Settings</h6>
-                                    <div class="preference-group">
-                                        <div class="preference-item">
-                                            <label>Items per page:</label>
-                                            <select name="items_per_page" class="form-control small-select">
-                                                <option value="12">12</option>
-                                                <option value="24" selected>24</option>
-                                                <option value="36">36</option>
-                                                <option value="48">48</option>
-                                            </select>
-                                        </div>
-                                        <div class="preference-item">
-                                            <label>Default sort:</label>
-                                            <select name="default_sort" class="form-control small-select">
-                                                <option value="newest" selected>Newest First</option>
-                                                <option value="oldest">Oldest First</option>
-                                                <option value="popular">Most Popular</option>
-                                                <option value="rating">Highest Rated</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                
                                 <div class="settings-section danger-zone">
                                     <h6>Danger Zone</h6>
                                     <div class="danger-actions">
@@ -375,7 +274,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                         </div>
                     </div>
                     
-                    <!-- Profile Picture Upload Modal -->
                     <div id="pfp-upload-modal" class="popup" style="display: none;">
                         <div class="popup-content pfp-modal-content">
                             <span class="close-btn" onclick="closePfpModal()">&times;</span>
@@ -420,7 +318,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
         </div>
         <div id="notification-container" class="notification-container"></div>
         
-        <!-- Struttura principale -->
         <div class="manga">
             <div class="manga-container">
                 <div class="left-column">
@@ -463,15 +360,12 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                         <div class="divider"></div>
                         <div class="manga-popular-list">
                             <?php
-                                // Includi la logica dei manga con filtro per genere
                                 $searchPattern = "%" . $searchGenre . "%";
                                 
-                                // Configurazione paginazione
                                 $mangaPerPage = 16;
                                 $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
                                 $currentPage = max(1, $currentPage);
                                 
-                                // Gestione ordinamento
                                 $sortParam = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
                                 $orderClause = '';
                                 
@@ -497,10 +391,8 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                         break;
                                 }
                                 
-                                // Calcola l'offset per la query
                                 $offset = ($currentPage - 1) * $mangaPerPage;
 
-                                // Query con filtro genere
                                 $sql = "SELECT m.id, m.title, m.image_url, m.created_at,
                                     COALESCE(FLOOR(AVG(lu.rating) * 10) / 10, 0) AS rating
                                     FROM manga m
@@ -522,10 +414,8 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                     }
                                 }
 
-                                // Verifica se c'è una pagina successiva
                                 $hasNextPage = count($mangaItems) > $mangaPerPage;
                                 
-                                // Rimuovi l'elemento extra se presente
                                 if ($hasNextPage) {
                                     array_pop($mangaItems);
                                 }
@@ -533,43 +423,35 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                 $columns = 4;
                                 $currentPageMangaCount = count($mangaItems);
 
-                                // Mostra i manga della pagina corrente
                                 if ($currentPageMangaCount > 0) {
                                     $emptyDivCount = $columns - ($currentPageMangaCount % $columns);
                                     foreach ($mangaItems as $manga) {
                                         $mangaTitleSlug = strtolower(str_replace(' ', '_', $manga['title']));
-                                        // URL pulito senza parametri GET
                                         $mangaPageUrl = "series/" . $mangaTitleSlug;
                                         $rating = floatval($manga['rating']);
                                         
                                         echo '<div class="manga-item" onclick="window.location.href=\'' . htmlspecialchars($mangaPageUrl) . '\'">';
                                         echo '<img src="' . htmlspecialchars($manga['image_url']) . '" alt="' . htmlspecialchars($manga['title']) . '">';
                                         
-                                        // Overlay del rating che appare in hover
                                         echo '<div class="rating-overlay">';
                                         echo '<div class="rating-content">';
                                         
-                                        // Titolo dell'overlay su due righe
                                         echo '<div class="overlay-title">' . htmlspecialchars($manga['title']) . '</div>';
                                         
-                                        // Container per stelle e voto numerico sulla stessa riga
                                         echo '<div class="rating-row">';
                                         
-                                        // Sempre 5 stelle
                                         echo '<div class="stars">';
-                                        $ratingOutOfFive = $rating / 2; // Converti da 10 a 5
+                                        $ratingOutOfFive = $rating / 2;
                                         $fullStars = floor($ratingOutOfFive);
                                         $hasHalfStar = ($ratingOutOfFive - $fullStars) >= 0.5;
                                         $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
                                         
-                                        // Stelle piene
                                         for ($i = 0; $i < $fullStars; $i++) {
                                             echo '<svg class="manga-star full" viewBox="0 0 24 24" fill="#ffc107" xmlns="http://www.w3.org/2000/svg">
                                             <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/>
                                             </svg>';
                                         }
                                         
-                                        // Stella mezza (se presente)
                                         if ($hasHalfStar) {
                                             echo '<svg class="manga-star half" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <defs>
@@ -582,7 +464,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                             </svg>';
                                         }
                                         
-                                        // Stelle vuote
                                         for ($i = 0; $i < $emptyStars; $i++) {
                                             echo '<svg class="manga-star empty" viewBox="0 0 24 24" fill="#444" xmlns="http://www.w3.org/2000/svg">
                                             <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/>
@@ -590,14 +471,13 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                         }
                                         echo '</div>';
                                         
-                                        // Voto numerico accanto alle stelle
                                         if ($rating > 0) {
                                             echo '<div class="rating-number">' . htmlspecialchars($rating, ENT_QUOTES, 'UTF-8') . '</div>';
                                         } else {
                                             echo '<div class="rating-number">N/A</div>';
                                         }
                                         
-                                        echo '</div>'; // Chiude rating-row
+                                        echo '</div>';
                                         echo '</div>';
                                         echo '</div>';
                                         
@@ -605,7 +485,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                         echo '</div>';
                                     }
                                     
-                                    // Aggiungi div vuoti per mantenere il layout
                                     if ($emptyDivCount < $columns && $emptyDivCount > 0) {
                                         for ($i = 0; $i < $emptyDivCount; $i++) {
                                             echo '<div class="manga-item-fake"></div>';
@@ -615,17 +494,14 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                     echo '<p class="no-data">Nessun manga trovato per il genere "' . htmlspecialchars($searchGenre) . '".</p>';
                                 }
 
-                                // Mostra la paginazione con parametro genere
                                 if ($currentPage > 1 || $hasNextPage) {
                                     echo '<div class="simple-pagination">';
                                     
-                                    // Costruisci URL base con parametri di ordinamento e genere
                                     $baseUrl = '?genre=' . urlencode($searchGenre) . '&';
                                     if ($sortParam !== 'newest') {
                                         $baseUrl .= 'sort=' . urlencode($sortParam) . '&';
                                     }
                                     
-                                    // Bottone Previous
                                     if ($currentPage > 1) {
                                         echo '<a href="' . $baseUrl . 'page=' . ($currentPage - 1) . '" class="nav-btn prev-btn">';
                                         echo '<svg width="16" height="16" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.81809 4.18179C8.99383 4.35753 8.99383 4.64245 8.81809 4.81819L6.13629 7.49999L8.81809 10.1818C8.99383 10.3575 8.99383 10.6424 8.81809 10.8182C8.64236 10.9939 8.35743 10.9939 8.1817 10.8182L5.1817 7.81819C5.09731 7.73379 5.0499 7.61933 5.0499 7.49999C5.0499 7.38064 5.09731 7.26618 5.1817 7.18179L8.1817 4.18179C8.35743 4.00605 8.64236 4.00605 8.81809 4.18179Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" stroke="currentColor" stroke-width="1"></path></svg>';
@@ -636,7 +512,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
                                         echo 'Previous</span>';
                                     }
                                     
-                                    // Bottone Next
                                     if ($hasNextPage) {
                                         echo '<a href="' . $baseUrl . 'page=' . ($currentPage + 1) . '" class="nav-btn next-btn">';
                                         echo 'Next<svg width="16" height="16" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.18194 4.18185C6.35767 4.00611 6.6426 4.00611 6.81833 4.18185L9.81833 7.18185C9.90272 7.26624 9.95013 7.3807 9.95013 7.50005C9.95013 7.6194 9.90272 7.73386 9.81833 7.81825L6.81833 10.8182C6.6426 10.994 6.35767 10.994 6.18194 10.8182C6.0062 10.6425 6.0062 10.3576 6.18194 10.1819L8.86374 7.50005L6.18194 4.81825C6.0062 4.64251 6.0062 4.35759 6.18194 4.18185Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" stroke="currentColor" stroke-width="1"></path></svg>';
@@ -667,7 +542,6 @@ $searchGenre = isset($_GET['genre']) ? trim($_GET['genre']) : '';
             </div>
         </div>
         
-        <!-- Add manga popup -->
         <div id="add-manga-popup" class="popup">
             <div class="popup-content">
                 <span class="close-btn" onclick="closeAddMangaPopup()">&times;</span>

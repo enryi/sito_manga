@@ -1,5 +1,5 @@
 <?php
-    session_start();
+    require_once 'session.php';
     $registration_error = null;
     $registration_success = null;
     $password_changed = null;

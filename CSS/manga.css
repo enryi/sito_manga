@@ -1,4 +1,3 @@
-/* Import di un font più adatto ai manga */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
 .manga {
     display: flex;
@@ -45,13 +44,211 @@
     margin-top: 15px;
 }
 
+.top-manga-item .manga-title {
+    font-family: 'Noto Sans JP', 'Arial', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    text-align: left;
+    margin-bottom: 5px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-manga-item.first {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 10px;
+    background-color: #1e1e1e;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.top-manga-item.first::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.top-manga-item.first img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+}
+
+.top-manga-item.first .rank {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    z-index: 2;
+}
+
+.top-manga-item.first .manga-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 5px 0;
+    z-index: 2;
+}
+
+.top-manga-item.first .manga-rating {
+    font-size: 14px;
+    color: #ffc107;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 2;
+}
+
+.top-manga-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #444;
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.top-manga-item:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.top-manga-item .hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.top-manga-item:hover .hover-overlay {
+    opacity: 1;
+}
+
+.top-manga-item .hover-overlay .overlay-content {
+    text-align: center;
+    color: #fff;
+    padding: 15px;
+}
+
+.top-manga-item .hover-overlay .overlay-title {
+    font-family: 'Noto Sans JP', 'Arial', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+}
+
+.top-manga-item .hover-overlay .overlay-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 14px;
+    color: #ffc107;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.top-manga-item .rank {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #888;
+    border: 1px solid #888;
+    border-radius: 3px;
+    margin-right: 15px;
+}
+
+.top-manga-item .image-container {
+    width: 60px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.top-manga-item .image-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+}
+
+.top-manga-item .manga-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.top-manga-item {
+    font-size: 14px;
+    color: #888;
+    text-align: left;
+}
+
+.top-manga-item .manga-rating {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ffc107;
+}
+
+.top-manga-item .manga-rating .manga-star {
+    margin-left: 0px;
+    width: 16px;
+    height: 16px;
+    margin-right: 0px;
+}
+
+.top-manga-container h3.manga-title {
+    background: #fff !important;
+    background-size: 400% 400% !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    animation: goldShimmer 2.5s linear infinite !important;
+}
+
 .manga-popular-list {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
     gap: 20px;
-    margin-top: 15px;
+    margin-top: 10px;
     padding: 0 10px;
 }
 
@@ -70,7 +267,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
-    margin-top: 15px;
+    margin-top: 10px;
     padding: 0;
 }
 
@@ -132,29 +329,6 @@
 }
 
 .manga-title {
-    font-size: 18px; /* Mantengo dimensione originale per le intestazioni */
-    font-weight: 700;
-    color: #fff;
-    text-align: left;
-    margin-bottom: 5px;
-    line-height: 1.2em;
-    display: block;
-    padding-bottom: 2px;
-}
-/* Stili per le intestazioni delle sezioni (POPULAR MANGA, LATEST MANGA, TOP MANGA) */
-.manga-title {
-    font-size: 18px; /* Mantengo dimensione originale per le intestazioni */
-    font-weight: 700;
-    color: #fff;
-    text-align: left;
-    margin-bottom: 5px;
-    line-height: 1.2em;
-    display: block;
-    padding-bottom: 2px;
-}
-
-/* Stili per le intestazioni delle sezioni (POPULAR MANGA, LATEST MANGA, TOP MANGA) */
-.manga-title {
     font-family: 'Noto Sans JP', 'Arial', sans-serif;
     font-size: 18px;
     font-weight: 700;
@@ -167,25 +341,10 @@
     letter-spacing: 0.5px;
 }
 
-/* Stili specifici per i titoli dei singoli manga */
 .manga-item .manga-title {
-    font-family: 'Noto Sans JP', 'Arial', sans-serif !important;
-    font-size: 15px !important;
-    font-weight: 500 !important; /* Ridotto il peso per i titoli troncati */
     color: #fff;
-    text-align: center !important;
-    margin-bottom: 8px !important;
-    line-height: 1.3em;
-    display: block;
-    padding-bottom: 2px;
-    letter-spacing: 0.3px;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100%;
 }
 
-/* Container dell'immagine con posizione relativa per l'overlay per LATEST MANGA e COMICS */
 .latest-manga-container .manga-item,
 .popular-manga-container .manga-item {
     position: relative;
@@ -200,14 +359,13 @@
     transition: filter 0.3s ease;
 }
 
-/* Overlay per il rating con effetto hover per LATEST MANGA e COMICS */
 .latest-manga-container .manga-item .rating-overlay,
 .popular-manga-container .manga-item .rating-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 200px; /* Stessa altezza dell'immagine */
+    height: 200px;
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
     display: flex;
@@ -231,7 +389,6 @@
     filter: brightness(0.4);
 }
 
-/* Stili per il contenuto dell'overlay per LATEST MANGA e COMICS */
 .latest-manga-container .rating-overlay .rating-content,
 .popular-manga-container .rating-overlay .rating-content {
     text-align: center;
@@ -245,7 +402,6 @@
     max-width: 100%;
 }
 
-/* Stile per il titolo nell'overlay per LATEST MANGA e COMICS */
 .latest-manga-container .rating-overlay .overlay-title,
 .popular-manga-container .rating-overlay .overlay-title {
     font-family: 'Noto Sans JP', 'Arial', sans-serif;
@@ -259,11 +415,12 @@
     max-width: 100%;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
-/* Container per stelle e voto sulla stessa riga per LATEST MANGA e COMICS */
+
 .latest-manga-container .rating-overlay .rating-row,
 .popular-manga-container .rating-overlay .rating-row {
     display: flex;
@@ -276,7 +433,7 @@
 .latest-manga-container .rating-overlay .stars,
 .popular-manga-container .rating-overlay .stars {
     display: flex;
-    justify-content: center;
+
     gap: 1px;
 }
 
@@ -296,11 +453,6 @@
     fill: #444;
 }
 
-.latest-manga-container .rating-overlay .manga-star.half,
-.popular-manga-container .rating-overlay .manga-star.half {
-    /* Il fill è gestito dal gradiente nel PHP */
-}
-
 .latest-manga-container .rating-overlay .rating-number,
 .popular-manga-container .rating-overlay .rating-number {
     font-size: 15px;
@@ -310,7 +462,6 @@
     min-width: 25px;
 }
 
-/* Mantieni il rating container normale per POPULAR MANGA (senza overlay quando è nella homepage) */
 .popular-manga-container .manga-rating-container {
     display: flex;
     align-items: center;
@@ -319,7 +470,6 @@
     gap: 8px;
 }
 
-/* CSS per paginazione semplificata - Integrato dal file pagination.css */
 .simple-pagination {
     display: flex;
     align-items: center;
@@ -378,7 +528,6 @@
     height: 16px;
 }
 
-/* Responsive design per paginazione */
 @media (max-width: 768px) {
     .simple-pagination {
         padding: 15px;
@@ -401,20 +550,6 @@
         font-size: 11px;
         padding: 6px 12px;
     }
-}
-
-/* Stili per i titoli dei manga nella top list */
-.top-manga-item .manga-title {
-    font-family: 'Noto Sans JP', 'Arial', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    text-align: left;
-    margin-bottom: 5px;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .manga-rating-container {
@@ -503,152 +638,6 @@
     opacity: 0.9;
 }
 
-.top-manga-item.first {
-    position: relative;
-    width: 100%;
-    height: 200px;
-    margin-bottom: 10px;
-    background-color: #1e1e1e;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    overflow: hidden;
-    border-radius: 8px;
-}
-
-.top-manga-item.first::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1;
-}
-
-.top-manga-item.first img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    z-index: 0;
-}
-
-.top-manga-item.first .info {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: flex-start;
-    z-index: 2;
-}
-
-.top-manga-item.first .rank {
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    z-index: 2;
-}
-
-.top-manga-item.first .manga-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 5px 0;
-    z-index: 2;
-}
-
-.top-manga-item.first .manga-rating {
-    font-size: 14px;
-    color: #ffc107;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    z-index: 2;
-}
-
-.top-manga-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    border-bottom: 1px solid #444;
-    position: relative;
-    width: 100%;
-}
-
-.top-manga-item .rank {
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #888;
-    border: 1px solid #888;
-    border-radius: 3px;
-    margin-right: 15px;
-}
-
-.top-manga-item .image-container {
-    width: 60px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-}
-
-.top-manga-item .image-container img {
-    width: 100%;
-    height: 100%;
-    border-radius: 3px;
-}
-
-.top-manga-item:hover {
-    cursor: pointer;
-}
-
-.top-manga-item .info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 80px;
-}
-
-.top-manga-item .manga-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    margin-bottom: 5px;
-}
-
-.top-manga-item {
-    font-size: 14px;
-    color: #888;
-    text-align: left;
-    margin-bottom: 5px;
-}
-
-.top-manga-item .manga-rating {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #ffc107;
-}
-
-.top-manga-item .manga-rating .manga-star {
-    margin-left: 0px;
-    width: 16px;
-    height: 16px;
-    margin-right: 0px;
-}
-
 .popup {
     position: fixed;
     top: 50%;
@@ -727,11 +716,8 @@
     background-color: #218838;
 }
 
-/* Aggiungere al file manga.css */
-
-/* Margine aggiuntivo per Series List */
 .popular-manga-container {
-    margin-top: 15px; /* Aggiunto margine superiore */
+    margin-top: 15px;
     gap: 38px;
     padding: 10px;
     border-radius: 8px;
@@ -747,7 +733,7 @@
 .series-header {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Cambiato da flex-start a space-between */
+    justify-content: space-between;
     gap: 15px;
     margin-bottom: 5px;
 }
@@ -756,11 +742,10 @@
     margin-bottom: 0 !important;
 }
 
-/* Stili per il filtro */
 .filter-container {
     position: relative;
     display: inline-block;
-    margin-left: auto; /* Aggiunto per spingere completamente a destra */
+    margin-left: auto;
 }
 
 .filter-button {
@@ -793,7 +778,6 @@
     stroke: #ffc107;
 }
 
-/* Menu dropdown del filtro */
 .filter-dropdown {
     position: absolute;
     top: 100%;
@@ -861,14 +845,12 @@
     border-bottom-right-radius: 5px;
 }
 
-/* Indicatore direzione ordinamento */
 .filter-option .sort-indicator {
     float: right;
     font-size: 12px;
     opacity: 0.7;
 }
 
-/* Responsive per il filtro */
 @media (max-width: 768px) {
     .series-header {
         gap: 10px;
@@ -884,9 +866,6 @@
     }
 }
 
-/* Animazioni raffinate per i titoli H3 specifici delle sezioni manga */
-
-/* Base styling per allineamento uniforme */
 .popular-manga-container h3.manga-title,
 .latest-manga-container h3.manga-title,
 .top-manga-container h3.manga-title {
@@ -902,7 +881,6 @@
     margin-top: 0 !important;
 }
 
-/* POPULAR MANGA - gradiente rosso animato */
 .popular-manga-container h3.manga-title {
     background: #fff !important;
     background-size: 400% 400% !important;
@@ -914,7 +892,6 @@
     margin-left: 5px !important;
 }
 
-/* LATEST MANGA - verde semplice senza glow */
 .latest-manga-container h3.manga-title {
     color:  #fff !important;
     background: none !important;
@@ -922,17 +899,6 @@
     margin-top: 10px !important;
 }
 
-/* TOP MANGA - effetto oro metallico */
-.top-manga-container h3.manga-title {
-    background: #fff !important;
-    background-size: 400% 400% !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    animation: goldShimmer 2.5s linear infinite !important;
-}
-
-/* Animazioni */
 @keyframes popularGradient {
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
@@ -943,7 +909,6 @@
     50% { background-position: 100% 50%; }
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .popular-manga-container h3.manga-title,
     .latest-manga-container h3.manga-title,

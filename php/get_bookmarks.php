@@ -1,6 +1,6 @@
 <?php
-    require_once 'db_connection.php';
-
+    require_once 'session.php';
+    
     function getUserBookmarks($userId) {
         global $conn;
         
@@ -27,7 +27,6 @@
         $bookmarks = [];
         
         while ($row = $result->fetch_assoc()) {
-            // Aggiungi l'URL dinamico per ogni manga - URL pulito
             $mangaTitleSlug = strtolower(str_replace(' ', '_', $row['title']));
             $row['manga_url'] = "series/" . $mangaTitleSlug;
             $bookmarks[] = $row;
@@ -37,13 +36,11 @@
         return $bookmarks;
     }
 
-    // Funzione helper per generare l'URL del manga
     function getMangaUrl($mangaTitle) {
         $mangaTitleSlug = strtolower(str_replace(' ', '_', $mangaTitle));
         return "series/" . $mangaTitleSlug;
     }
 
-    // Funzione per mostrare i bookmarks in HTML (se necessaria)
     function displayBookmarks($bookmarks) {
         if (empty($bookmarks) || isset($bookmarks['error'])) {
             echo '<p class="no-data">No bookmarks found.</p>';

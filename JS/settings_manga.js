@@ -1,6 +1,3 @@
-// Modified settings.js for series subfolder
-// Update all PHP paths to include ../php/
-
 function toggleUserMenu() {
     const dropdown = document.getElementById('user-dropdown');
     
@@ -83,14 +80,28 @@ function fixDropdownCSS() {
     }
 }
 
-function openSettingsPopup() {
-    document.getElementById('settings-popup').style.display = 'block';
+function openSettingsPopup(event) {
+    const popup = document.getElementById('settings-popup');
+    popup.style.display = 'block';
+    document.body.classList.add('popup-open');
+
     loadUserInfo();
     loadUserStats();
+    toggleUserMenu();
+
+    event.stopPropagation();
+
+    setTimeout(() => {
+        document.addEventListener('click', handleOutsideClick);
+    }, 0);
 }
 
 function closeSettingsPopup() {
-    document.getElementById('settings-popup').style.display = 'none';
+    const popup = document.getElementById('settings-popup');
+    popup.style.display = 'none';
+    document.body.classList.remove('popup-open');
+
+    document.removeEventListener('click', handleOutsideClick);
 }
 
 function showSettingsTab(tabName) {

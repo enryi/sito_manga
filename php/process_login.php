@@ -1,19 +1,11 @@
 <?php
-    session_start();
+    require_once 'session.php';
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = $_POST['username'];
         $password = $_POST['password'];
-        $servername = "localhost";
-        $db_username = "root";
-        $db_password = "";
-        $dbname = "manga";
-        $conn = new mysqli($servername, $db_username, $db_password, $dbname);
-        if ($conn->connect_error) {
-            $_SESSION['login_error'] = 'Database connection failed.';
-            header("Location: ../login");
-            exit();
-        }
         $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
+        
         if ($stmt === false) {
             $_SESSION['login_error'] = 'Query preparation failed: ' . $conn->error;
             header("Location: ../login");
