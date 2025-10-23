@@ -110,7 +110,6 @@ manga-website/
 │   ├── search.js          # Search functionality
 │   └── user.js            # User management
 ├── php/                    # PHP backend
-│   ├── migrations/         # Database migrations
 │   ├── *.php              # Core PHP files
 ├── series/                 # Auto-generated manga pages
 ├── uploads/               # User uploaded images
