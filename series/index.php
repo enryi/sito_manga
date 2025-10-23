@@ -17,17 +17,10 @@
     }
 
     $requestUri = $_SERVER['REQUEST_URI'];
-    $basePath = '/enryi/series/';
 
     $mangaSlug = '';
-    if (strpos($requestUri, $basePath) === 0) {
-        $mangaSlug = substr($requestUri, strlen($basePath));
-        $mangaSlug = trim($mangaSlug, '/');
-        
-        if (strpos($mangaSlug, '?') !== false) {
-            $mangaSlug = substr($mangaSlug, 0, strpos($mangaSlug, '?'));
-        }
-        
+    if (preg_match('#/series/([^?]+)#', $requestUri, $matches)) {
+        $mangaSlug = trim($matches[1], '/');
         $mangaSlug = urldecode($mangaSlug);
     }
 
