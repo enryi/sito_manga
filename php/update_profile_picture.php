@@ -1,5 +1,6 @@
 <?php
     require_once 'session.php';
+    require_once 'image_security.php';
     header('Content-Type: application/json');
 
     if (!isset($_SESSION['user_id'])) {
@@ -21,24 +22,21 @@
 
     $file = $_FILES['profile_picture'];
 
-    $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($file['type'], $allowed_types)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid file type']);
-        exit();
-    }
-
-    if ($file['size'] > 5 * 1024 * 1024) {
-        echo json_encode(['success' => false, 'message' => 'File too large. Maximum size is 5MB']);
-        exit();
-    }
-
     $upload_dir = '../uploads/profiles/';
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
+    
+    if (!ensureSecureUploadDirectory($upload_dir)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to prepare upload directory']);
+        exit();
+    }
+    
+    $validation_result = validateAndSanitizeImage($file['tmp_name']);
+    
+    if (!$validation_result['success']) {
+        echo json_encode(['success' => false, 'message' => $validation_result['message']]);
+        exit();
     }
 
-    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $filename = uniqid('profile_' . $user_id . '_') . '.' . $file_extension;
+    $filename = generateSecureFilename($validation_result['extension'], 'profile_' . $user_id . '_');
     $target_path = $upload_dir . $filename;
 
     $stmt = $conn->prepare("SELECT pfp FROM users WHERE id = ?");
@@ -58,13 +56,13 @@
         $update_stmt->bind_param("si", $pfp_path, $user_id);
         
         if ($update_stmt->execute()) {
-            if ($current_pfp && file_exists('../' . $current_pfp)) {
-                unlink('../' . $current_pfp);
+            if ($current_pfp) {
+                deleteImageSafely('../' . $current_pfp);
             }
             
             echo json_encode(['success' => true, 'message' => 'Profile picture updated successfully']);
         } else {
-            unlink($target_path);
+            deleteImageSafely($target_path);
             echo json_encode(['success' => false, 'message' => 'Failed to update database']);
         }
         
@@ -73,4 +71,5 @@
         echo json_encode(['success' => false, 'message' => 'Failed to upload file']);
     }
 
+    $conn->close();
 ?>

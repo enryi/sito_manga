@@ -41,7 +41,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^pending/?$ pending/index.php [QSA,L]
 
-# Configurazioni per gestire meglio i caratteri speciali
 AddDefaultCharset UTF-8
 
 # Cache headers per le immagini
@@ -53,3 +52,10 @@ AddDefaultCharset UTF-8
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/webp "access plus 1 month"
 </IfModule>
+
+# Give access to specific hostnames
+RewriteCond %{HTTP_HOST} !^enryi\.23hosts\.com$ [NC]
+RewriteCond %{HTTP_HOST} !^localhost$ [NC]
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1$ [NC]
+RewriteCond %{HTTP_HOST} !^::1$ [NC]
+RewriteRule ^ access_forbidden.php [L]

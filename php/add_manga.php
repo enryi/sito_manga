@@ -1,6 +1,7 @@
 <?php
     require_once 'notification_functions.php';
     require_once 'session.php';
+    require_once 'image_security.php';
 
     function redirectWithNotification($status, $message, $redirectPath = null) {
         if ($redirectPath === null) {
@@ -51,7 +52,6 @@
         
         if (!in_array($type, ['Manga', 'Manwha', 'Manhua'])) {
             redirectWithNotification('error', 'Invalid manga type selected.');
-        
         }
         
         $checkTitleStmt = $conn->prepare("SELECT id FROM manga WHERE title = ?");
@@ -60,6 +60,7 @@
         $titleResult = $checkTitleStmt->get_result();
         
         if ($titleResult->num_rows > 0) {
+            $checkTitleStmt->close();
             $conn->close();
             redirectWithNotification('error', 'A manga with this title already exists.');
         }
@@ -106,47 +107,38 @@
                 break;
         }
         
-        $maxFileSize = 5 * 1024 * 1024;
-        if ($file['size'] > $maxFileSize) {
-            $conn->close();
-            redirectWithNotification('error', 'File size too large. Maximum allowed size is 5MB.');
-        }
-        
-        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-
-        if (!in_array($file_extension, $allowed_extensions)) {
-            $conn->close();
-            redirectWithNotification('error', 'Invalid file type. Allowed types: JPG, JPEG, PNG, GIF, WebP');
-        }
-        
-        $imageInfo = getimagesize($file['tmp_name']);
-        if ($imageInfo === false) {
-            $conn->close();
-            redirectWithNotification('error', 'The uploaded file is not a valid image.');
-        }
-        
-        $maxWidth = 2000;
-        $maxHeight = 3000;
-        if ($imageInfo[0] > $maxWidth || $imageInfo[1] > $maxHeight) {
-            $conn->close();
-            redirectWithNotification('error', "Image dimensions too large. Maximum size: {$maxWidth}x{$maxHeight} pixels.");
-        }
-        
-        $timestamp = time();
-        $random_string = bin2hex(random_bytes(8));
-        $new_filename = $timestamp . '_' . $random_string . '.' . $file_extension;
-        
         $uploadDir = '../uploads/manga/';
-        if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0777, true)) {
-                $conn->close();
-                redirectWithNotification('error', 'Failed to create upload directory.');
-            }
+        
+        if (!ensureSecureUploadDirectory($uploadDir)) {
+            $conn->close();
+            redirectWithNotification('error', 'Failed to prepare upload directory.');
         }
         
-        $uploadFile = $uploadDir . $new_filename;
-        $imageUrl = 'uploads/manga/' . $new_filename;
+        $validation_result = validateAndSanitizeImage(
+            $file['tmp_name'],
+            ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+            5 * 1024 * 1024
+        );
+        
+        if (!$validation_result['success']) {
+            $conn->close();
+            error_log("Image validation failed: " . $validation_result['message']);
+            redirectWithNotification('error', $validation_result['message']);
+        }
+        
+        if ($validation_result['width'] > 2000 || $validation_result['height'] > 3000) {
+            $conn->close();
+            redirectWithNotification('error', 'Image dimensions too large. Maximum: 2000x3000 pixels.');
+        }
+        
+        if ($validation_result['width'] < 100 || $validation_result['height'] < 100) {
+            $conn->close();
+            redirectWithNotification('error', 'Image dimensions too small. Minimum: 100x100 pixels.');
+        }
+        
+        $filename = generateSecureFilename($validation_result['extension'], 'manga_');
+        $uploadFile = $uploadDir . $filename;
+        $imageUrl = 'uploads/manga/' . $filename;
         
         if (!move_uploaded_file($file['tmp_name'], $uploadFile)) {
             $conn->close();
@@ -157,7 +149,7 @@
         $stmt = $conn->prepare("INSERT INTO manga (title, image_url, description, author, type, genre, approved, submitted_by) VALUES (?, ?, ?, ?, ?, ?, 0, ?)");
         
         if (!$stmt) {
-            unlink($uploadFile);
+            deleteImageSafely($uploadFile);
             $conn->close();
             error_log("ERROR: Failed to prepare statement: " . $conn->error);
             redirectWithNotification('error', 'Database error occurred. Please try again.');
@@ -166,7 +158,7 @@
         $stmt->bind_param("ssssssi", $title, $imageUrl, $description, $author, $type, $genre, $submitted_by);
         
         if (!$stmt->execute()) {
-            unlink($uploadFile);
+            deleteImageSafely($uploadFile);
             $stmt->close();
             $conn->close();
             error_log("Failed to insert manga: " . $stmt->error);
