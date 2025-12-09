@@ -1,6 +1,7 @@
 <?php
     header('Content-Type: application/json');
     require_once 'session.php';
+    require_once 'image_security.php';
 
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
@@ -63,16 +64,26 @@
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = '../uploads/profiles/';
         
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+        if (!ensureSecureUploadDirectory($upload_dir)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to prepare upload directory.']);
+            exit();
         }
         
-        $file_extension = 'jpg';
-        $filename = uniqid('profile_') . '.' . $file_extension;
+        $validation_result = validateAndSanitizeImage($_FILES['profile_picture']['tmp_name']);
+        
+        if (!$validation_result['success']) {
+            echo json_encode(['success' => false, 'message' => $validation_result['message']]);
+            exit();
+        }
+        
+        $filename = generateSecureFilename($validation_result['extension'], 'profile_');
         $target_path = $upload_dir . $filename;
         
         if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $target_path)) {
             $pfp_path = 'uploads/profiles/' . $filename;
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to save profile picture.']);
+            exit();
         }
     }
 
@@ -96,7 +107,7 @@
         echo json_encode(['success' => false, 'message' => 'Error during registration: ' . $stmt->error]);
         
         if ($pfp_path && file_exists('../' . $pfp_path)) {
-            unlink('../' . $pfp_path);
+            deleteImageSafely('../' . $pfp_path);
         }
         
         $stmt->close();

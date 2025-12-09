@@ -99,7 +99,7 @@
         if ($uploadResult['width'] > $maxWidth || $uploadResult['height'] > $maxHeight) {
             @unlink($uploadResult['path']);
             $conn->close();
-            redirectWithNotification('error', "Image dimensions too large. Maximum size: {$maxWidth}x{$maxHeight} pixels.");
+            redirectWithNotification('error', 'Image dimensions too small. Minimum: 100x100 pixels.');
         }
         
         // ============================================================
