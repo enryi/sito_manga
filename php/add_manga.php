@@ -1,6 +1,7 @@
 <?php
     require_once 'notification_functions.php';
     require_once 'session.php';
+    require_once 'secure_image_upload.php';
 
     function redirectWithNotification($status, $message, $redirectPath = null) {
         if ($redirectPath === null) {
@@ -23,6 +24,7 @@
             redirectWithNotification('error', 'You must be logged in to upload manga.');
         }
         
+        // VALIDAZIONE CAMPI
         $required_fields = ['manga-title', 'manga-description', 'manga-author', 'manga-type', 'manga-genre'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
@@ -36,6 +38,7 @@
         $type = $_POST['manga-type'];
         $genre = trim($_POST['manga-genre']);
         
+        // VALIDAZIONE LUNGHEZZA
         if (strlen($title) > 255) {
             redirectWithNotification('error', 'Title is too long. Maximum 255 characters allowed.');
         }
@@ -49,115 +52,63 @@
             redirectWithNotification('error', 'Genre is too long. Maximum 255 characters allowed.');
         }
         
+        // VALIDAZIONE TIPO
         if (!in_array($type, ['Manga', 'Manwha', 'Manhua'])) {
             redirectWithNotification('error', 'Invalid manga type selected.');
-        
         }
         
+        // CONTROLLO TITOLO DUPLICATO
         $checkTitleStmt = $conn->prepare("SELECT id FROM manga WHERE title = ?");
         $checkTitleStmt->bind_param("s", $title);
         $checkTitleStmt->execute();
         $titleResult = $checkTitleStmt->get_result();
         
         if ($titleResult->num_rows > 0) {
+            $checkTitleStmt->close();
             $conn->close();
             redirectWithNotification('error', 'A manga with this title already exists.');
         }
         $checkTitleStmt->close();
         
+        // CONTROLLO FILE UPLOADATO
         if (!isset($_FILES['manga-image'])) {
             $conn->close();
             redirectWithNotification('error', 'No image file was uploaded.');
         }
         
-        $file = $_FILES['manga-image'];
+        // ============================================================
+        // UPLOAD SICURO CON SANITIZZAZIONE IMMAGINE
+        // ============================================================
+        $uploadResult = secureImageUpload(
+            $_FILES['manga-image'],
+            '../uploads/manga/',
+            5 * 1024 * 1024  // 5MB
+        );
         
-        switch ($file['error']) {
-            case UPLOAD_ERR_OK:
-                break;
-            case UPLOAD_ERR_NO_FILE:
-                $conn->close();
-                redirectWithNotification('error', 'No image file was uploaded.');
-                break;
-            case UPLOAD_ERR_INI_SIZE:
-            case UPLOAD_ERR_FORM_SIZE:
-                $conn->close();
-                redirectWithNotification('error', 'The uploaded file is too large. Maximum file size is 5MB.');
-                break;
-            case UPLOAD_ERR_PARTIAL:
-                $conn->close();
-                redirectWithNotification('error', 'The file was only partially uploaded. Please try again.');
-                break;
-            case UPLOAD_ERR_NO_TMP_DIR:
-                $conn->close();
-                redirectWithNotification('error', 'Server error: Missing temporary folder.');
-                break;
-            case UPLOAD_ERR_CANT_WRITE:
-                $conn->close();
-                redirectWithNotification('error', 'Server error: Failed to write file to disk.');
-                break;
-            case UPLOAD_ERR_EXTENSION:
-                $conn->close();
-                redirectWithNotification('error', 'Server error: File upload stopped by extension.');
-                break;
-            default:
-                $conn->close();
-                redirectWithNotification('error', 'Unknown upload error occurred.');
-                break;
-        }
-        
-        $maxFileSize = 5 * 1024 * 1024;
-        if ($file['size'] > $maxFileSize) {
+        if (!$uploadResult['success']) {
             $conn->close();
-            redirectWithNotification('error', 'File size too large. Maximum allowed size is 5MB.');
+            error_log("SECURITY: Upload blocked - " . $uploadResult['error']);
+            redirectWithNotification('error', $uploadResult['error']);
         }
         
-        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif', 'webp');
-
-        if (!in_array($file_extension, $allowed_extensions)) {
-            $conn->close();
-            redirectWithNotification('error', 'Invalid file type. Allowed types: JPG, JPEG, PNG, GIF, WebP');
-        }
+        $imageUrl = 'uploads/manga/' . $uploadResult['filename'];
         
-        $imageInfo = getimagesize($file['tmp_name']);
-        if ($imageInfo === false) {
-            $conn->close();
-            redirectWithNotification('error', 'The uploaded file is not a valid image.');
-        }
-        
+        // VERIFICA DIMENSIONI SPECIFICHE PER MANGA
         $maxWidth = 2000;
         $maxHeight = 3000;
-        if ($imageInfo[0] > $maxWidth || $imageInfo[1] > $maxHeight) {
+        if ($uploadResult['width'] > $maxWidth || $uploadResult['height'] > $maxHeight) {
+            @unlink($uploadResult['path']);
             $conn->close();
             redirectWithNotification('error', "Image dimensions too large. Maximum size: {$maxWidth}x{$maxHeight} pixels.");
         }
         
-        $timestamp = time();
-        $random_string = bin2hex(random_bytes(8));
-        $new_filename = $timestamp . '_' . $random_string . '.' . $file_extension;
-        
-        $uploadDir = '../uploads/manga/';
-        if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0777, true)) {
-                $conn->close();
-                redirectWithNotification('error', 'Failed to create upload directory.');
-            }
-        }
-        
-        $uploadFile = $uploadDir . $new_filename;
-        $imageUrl = 'uploads/manga/' . $new_filename;
-        
-        if (!move_uploaded_file($file['tmp_name'], $uploadFile)) {
-            $conn->close();
-            error_log("Failed to move uploaded file from " . $file['tmp_name'] . " to " . $uploadFile);
-            redirectWithNotification('error', 'Failed to save uploaded image.');
-        }
-        
+        // ============================================================
+        // INSERIMENTO NEL DATABASE
+        // ============================================================
         $stmt = $conn->prepare("INSERT INTO manga (title, image_url, description, author, type, genre, approved, submitted_by) VALUES (?, ?, ?, ?, ?, ?, 0, ?)");
         
         if (!$stmt) {
-            unlink($uploadFile);
+            @unlink($uploadResult['path']);
             $conn->close();
             error_log("ERROR: Failed to prepare statement: " . $conn->error);
             redirectWithNotification('error', 'Database error occurred. Please try again.');
@@ -166,7 +117,7 @@
         $stmt->bind_param("ssssssi", $title, $imageUrl, $description, $author, $type, $genre, $submitted_by);
         
         if (!$stmt->execute()) {
-            unlink($uploadFile);
+            @unlink($uploadResult['path']);
             $stmt->close();
             $conn->close();
             error_log("Failed to insert manga: " . $stmt->error);
@@ -174,8 +125,9 @@
         }
         
         $manga_id = $conn->insert_id;
-        error_log("SUCCESS: Manga inserted with ID: $manga_id, submitted_by: $submitted_by");
+        error_log("SUCCESS: Manga inserted with ID: $manga_id, submitted_by: $submitted_by, image: " . $uploadResult['filename']);
 
+        // NOTIFICA AMMINISTRATORI
         $adminCheckQuery = "SELECT COUNT(*) as admin_count FROM users WHERE is_admin = 1";
         $adminCheckResult = $conn->query($adminCheckQuery);
         $adminCount = $adminCheckResult->fetch_assoc()['admin_count'];

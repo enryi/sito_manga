@@ -1,18 +1,18 @@
 <?php
     require_once 'php/session.php';
     $_SESSION['current_path'] = $_SERVER['PHP_SELF'];
-
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "manga";
-
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
     $queryCheck = "SELECT COUNT(*) AS pending_count FROM manga WHERE approved = 0";
     $resultCheck = $conn->query($queryCheck);
+    $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
+    if (!$is_admin) {
+        $_SESSION['access_denied'] = true;
+        header("Location: php/redirect.php");
+        exit();
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

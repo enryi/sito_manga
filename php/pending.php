@@ -5,13 +5,18 @@
         SELECT 
             m.id, 
             m.title, 
-            m.chapter, 
-            m.website_link, 
             m.image_url, 
-            mp.created_at
-        FROM manga_pending mp
-        INNER JOIN manga m ON mp.manga_id = m.id
-        ORDER BY mp.created_at DESC
+            m.description,
+            m.author,
+            m.type,
+            m.genre,
+            m.created_at,
+            m.submitted_by,
+            u.username as submitter_name
+        FROM manga m
+        LEFT JOIN users u ON m.submitted_by = u.id
+        WHERE m.approved = 0
+        ORDER BY m.created_at DESC
     ";
     $result = $conn->query($sql);
 ?>

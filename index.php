@@ -23,10 +23,25 @@
         <script src="JS/search.js"></script>
         <script src="JS/notifications.js"></script>
         <script src="JS/upload-notifications.js"></script>
-        <script src="JS/settings.js"></script>
         <script src="JS/auth-notifications.js"></script>
+        <script src="JS/settings.js"></script>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Noto Sans JP', 'Arial', sans-serif">
+        <?php 
+            if (isset($_SESSION['error_notification'])): 
+                $error_data = $_SESSION['error_notification'];
+                unset($_SESSION['error_notification']);
+            ?>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showAuthNotification(
+                        '<?php echo htmlspecialchars($error_data['type'] ?? 'error'); ?>', 
+                        '<?php echo htmlspecialchars($error_data['title'] ?? 'Errore'); ?>', 
+                        '<?php echo htmlspecialchars($error_data['message'] ?? 'Si è verificato un errore.'); ?>'
+                    );
+                });
+            </script>
+        <?php endif; ?>
         <div class="navbar">
             <div class="navbar-container">
                 <div class="logo-container">

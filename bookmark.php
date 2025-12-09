@@ -2,10 +2,33 @@
     require_once 'php/session.php';
     $_SESSION['current_path'] = $_SERVER['PHP_SELF'];
     if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
-        header('Location: php/redirect.php');
+        $_SESSION['error_notification'] = [
+            'type' => 'error',
+            'title' => 'Access Denied',
+            'message' => 'You have to login to access that page.'
+        ];
+        header("Location: php/redirect.php");
         exit();
     }
 ?>
+
+<?php
+    require_once 'php/session.php';
+    $_SESSION['current_path'] = $_SERVER['PHP_SELF'];
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    $queryCheck = "SELECT COUNT(*) AS pending_count FROM manga WHERE approved = 0";
+    $resultCheck = $conn->query($queryCheck);
+    $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
+    if (!$is_admin) {
+        $_SESSION['access_denied'] = true;
+        header("Location: php/redirect.php");
+        exit();
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -31,204 +54,6 @@
         <script src="JS/upload-notifications.js"></script>   
         <script src="JS/settings.js"></script>
         <script src="JS/auth-notifications.js"></script>
-        <style>
-            .empty-state {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                padding: 4rem 2rem;
-                min-height: 400px;
-                background: rgba(255, 255, 255, 0.02);
-                border-radius: 12px;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                margin: 2rem 0;
-            }
-
-            .empty-state-icon {
-                margin-bottom: 1.5rem;
-                opacity: 0.6;
-                color: #666;
-            }
-
-            .empty-state-icon svg {
-                width: 64px;
-                height: 64px;
-            }
-
-            .empty-state-title {
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: #fff;
-                margin-bottom: 1rem;
-                text-align: center;
-            }
-
-            .empty-state-message {
-                font-size: 1rem;
-                color: #aaa;
-                margin-bottom: 2rem;
-                max-width: 400px;
-                line-height: 1.6;
-                text-align: center;
-            }
-
-            .empty-state-action {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.75rem 1.5rem;
-                background: linear-gradient(135deg, #007bff, #0056b3);
-                color: white;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                border: none;
-                cursor: pointer;
-                font-size: 0.95rem;
-            }
-
-            .empty-state-action:hover {
-                background: linear-gradient(135deg, #0056b3, #004085);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-                text-decoration: none;
-                color: white;
-            }
-
-            .empty-state-action:focus {
-                outline: none;
-                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
-            }
-
-            @media (max-width: 768px) {
-                .empty-state {
-                    padding: 3rem 1.5rem;
-                    min-height: 300px;
-                }
-                
-                .empty-state-icon svg {
-                    width: 48px;
-                    height: 48px;
-                }
-                
-                .empty-state-title {
-                    font-size: 1.25rem;
-                }
-                
-                .empty-state-message {
-                    font-size: 0.9rem;
-                }
-                
-                .empty-state-action {
-                    padding: 0.6rem 1.2rem;
-                    font-size: 0.9rem;
-                }
-            }
-
-            @media (prefers-color-scheme: dark) {
-                .empty-state {
-                    background: rgba(255, 255, 255, 0.03);
-                    border-color: rgba(255, 255, 255, 0.08);
-                }
-                
-                .empty-state-icon {
-                    color: #777;
-                }
-            }
-
-            .empty-state {
-                animation: fadeInUp 0.5s ease-out;
-            }
-
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            .loading-indicator {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 2rem;
-                margin-top: 1rem;
-            }
-
-            .loading-spinner {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 0.5rem;
-                color: #fff;
-            }
-
-            .spinner {
-                width: 32px;
-                height: 32px;
-                border: 3px solid rgba(255, 255, 255, 0.1);
-                border-top: 3px solid #007bff;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-
-            .loading-spinner span {
-                font-size: 0.9rem;
-                color: rgba(255, 255, 255, 0.7);
-            }
-
-            .manga-list-item {
-                will-change: transform;
-                transform: translateZ(0);
-                opacity: 0;
-                animation: fadeInUp 0.3s ease forwards;
-            }
-
-            .manga-list-item img {
-                will-change: transform;
-                transform: translateZ(0);
-            }
-
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .scroll-sentinel {
-                height: 1px !important;
-                visibility: hidden !important;
-                pointer-events: none !important;
-            }
-
-            @media (max-width: 768px) {
-                .loading-indicator {
-                    padding: 1rem;
-                }
-                
-                .spinner {
-                    width: 24px;
-                    height: 24px;
-                    border-width: 2px;
-                }
-            }
-        </style>
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Roboto', sans-serif;">
         <?php

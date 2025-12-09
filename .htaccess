@@ -1,50 +1,60 @@
 RewriteEngine On
 
-# Stop processing for static files immediately
+# La base è /enryi/ perché il sito è in quella sottocartella
+RewriteBase /enryi/
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Se sei su localhost, forza la sottocartella /enryi
+    RewriteCond %{HTTP_HOST} ^localhost$ [NC]
+    RewriteCond %{REQUEST_URI} !^/enryi/ [NC]
+    RewriteRule ^(.*)$ /enryi/$1 [L]
+
+    # Se sei sul dominio, "togli" /enryi dalla URL esterna
+    RewriteCond %{HTTP_HOST} ^enryi\.23hosts\.com$ [NC]
+    RewriteCond %{REQUEST_URI} ^/enryi/(.*)$ [NC]
+    RewriteRule ^enryi/(.*)$ /$1 [L]
+
+    # (qui sotto le tue normali rewrite per index.php, login, ecc.)
+    # Esempio:
+    # RewriteCond %{REQUEST_FILENAME} !-f
+    # RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteRule . index.php [L]
+</IfModule>
+
+# File statici: non toccarli
 RewriteRule \.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff|woff2|ttf|eot)$ - [L]
 
-# Regole per la cartella series
+# URL senza estensione -> .php se esiste
+# /login -> login.php
+# /register -> register.php
+# /comics -> comics.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ $1.php [QSA,L]
+
+# URL senza estensione -> .html se esiste
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ $1.html [QSA,L]
+
+# Regola specifica per /series/slug -> series/index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^series/([^/]+)/?$ series/index.php [QSA,L]
 
-# Regole per file PHP nella root con URL clean
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^bookmark/?$ bookmark.php [QSA,L]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^comics/?$ comics.php [QSA,L]
-
-# Regole per login e register (file PHP nella root)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^login/?$ login.php [QSA,L]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^register/?$ register.php [QSA,L]
-
-# Regole per pending.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^pending/?$ pending.php [QSA,L]
-
-# Regola per forgot_password
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^forgot_password/?$ forgot_password.php [QSA,L]
-
-# Regole per cartelle con index.php
+# Se hai una cartella /pending/ con index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^pending/?$ pending/index.php [QSA,L]
 
-# Configurazioni per gestire meglio i caratteri speciali
+# Charset
 AddDefaultCharset UTF-8
 
-# Cache headers per le immagini
+# Cache immagini
 <IfModule mod_expires.c>
     ExpiresActive on
     ExpiresByType image/png "access plus 1 month"
@@ -53,3 +63,34 @@ AddDefaultCharset UTF-8
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/webp "access plus 1 month"
 </IfModule>
+
+# Errori personalizzati 300s
+ErrorDocument 301 /enryi/errors/301.php
+
+# Errori personalizzati 400s
+ErrorDocument 401 /enryi/errors/401.php
+ErrorDocument 403 /enryi/errors/403.php
+ErrorDocument 404 /enryi/errors/404.php
+ErrorDocument 408 /enryi/errors/408.php
+ErrorDocument 429 /enryi/errors/429.php
+
+# Errori personalizzati 500s
+ErrorDocument 500 /enryi/errors/500.php
+ErrorDocument 502 /enryi/errors/502.php
+ErrorDocument 503 /enryi/errors/503.php
+ErrorDocument 504 /enryi/errors/504.php
+
+# Eccezioni per file specifici (Access Control)
+Options -Indexes
+
+<Files ".gitignore">
+    Require all denied
+</Files>
+
+<Files "README.md">
+    Require all denied
+</Files>
+
+<Files ".htaccess">
+    Require all denied
+</Files>

@@ -1,9 +1,9 @@
 let currentImage = null;
 let registrationData = null;
-let cropPosition = { x: 0, y: 0 }; // Posizione del crop
+let cropPosition = { x: 0, y: 0 };
 let isDragging = false;
 
-// Handle file input change and crop slider - NO MORE FORM SUBMIT HANDLER
+// Initialize registration data - will be loaded when needed
 document.addEventListener('DOMContentLoaded', function() {
     // Handle file input change
     const pfpInput = document.getElementById('pfpInput');
@@ -26,7 +26,7 @@ function addCropStyles() {
     style.textContent = `
         .pfp-upload-container {
             position: relative;
-            width: 300px; /* Aumentato per mostrare più immagine */
+            width: 300px;
             height: 300px;
             margin: 0 auto;
             cursor: pointer;
@@ -97,7 +97,6 @@ function addCropStyles() {
             display: block;
         }
 
-        /* Preview finale nel cerchio */
         .pfp-final-preview {
             position: absolute;
             bottom: 20px;
@@ -223,45 +222,37 @@ function setupDragHandlers(container) {
     let initialCropPos = { x: 0, y: 0 };
     let hasDragged = false;
     
-    // Calculate bounds for dragging
     function calculateBounds() {
         const preview = document.getElementById('pfpPreview');
         const slider = document.getElementById('cropSlider');
         if (!preview || !slider) return { maxX: 0, maxY: 0, minX: 0, minY: 0 };
         
         const scale = parseFloat(slider.value);
-        const containerSize = 300; // Dimensione del contenitore
-        const cropSize = 200; // Dimensione dell'area di crop
+        const containerSize = 300;
+        const cropSize = 200;
         
-        // Get actual image dimensions
         const img = preview;
         const imageAspectRatio = img.naturalWidth / img.naturalHeight;
         
         let displayWidth, displayHeight;
         
-        // Calcola le dimensioni dell'immagine per farla entrare nel contenitore
         if (imageAspectRatio > 1) {
-            // Immagine più larga che alta
             displayWidth = containerSize;
             displayHeight = containerSize / imageAspectRatio;
         } else {
-            // Immagine più alta che larga
             displayHeight = containerSize;
             displayWidth = containerSize * imageAspectRatio;
         }
         
-        // Apply scale
         displayWidth *= scale;
         displayHeight *= scale;
         
-        // Calculate max drag distance per coprire l'area di crop
         const maxX = Math.max(0, (displayWidth - cropSize) / 2);
         const maxY = Math.max(0, (displayHeight - cropSize) / 2);
         
         return { maxX, maxY, minX: -maxX, minY: -maxY };
     }
     
-    // Constrain position within bounds
     function constrainPosition(x, y) {
         const bounds = calculateBounds();
         return {
@@ -270,7 +261,6 @@ function setupDragHandlers(container) {
         };
     }
     
-    // Mouse events
     container.addEventListener('mousedown', (e) => {
         if (!container.classList.contains('has-image')) return;
         
@@ -290,7 +280,6 @@ function setupDragHandlers(container) {
         const deltaX = e.clientX - startPos.x;
         const deltaY = e.clientY - startPos.y;
         
-        // Mark as dragged if moved more than 3 pixels
         if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
             hasDragged = true;
         }
@@ -312,14 +301,12 @@ function setupDragHandlers(container) {
             isDragging = false;
             container.classList.remove('dragging');
             
-            // Prevent click if we dragged
             if (hasDragged) {
                 setTimeout(() => { hasDragged = false; }, 100);
             }
         }
     });
     
-    // Prevent file input click if we just dragged
     container.addEventListener('click', (e) => {
         if (hasDragged || isDragging) {
             e.preventDefault();
@@ -328,7 +315,6 @@ function setupDragHandlers(container) {
         }
     });
     
-    // Touch events for mobile
     container.addEventListener('touchstart', (e) => {
         if (!container.classList.contains('has-image')) return;
         
@@ -349,7 +335,6 @@ function setupDragHandlers(container) {
         const deltaX = touch.clientX - startPos.x;
         const deltaY = touch.clientY - startPos.y;
         
-        // Mark as dragged if moved more than 3 pixels
         if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
             hasDragged = true;
         }
@@ -372,7 +357,6 @@ function setupDragHandlers(container) {
             isDragging = false;
             container.classList.remove('dragging');
             
-            // Prevent click if we dragged
             if (hasDragged) {
                 setTimeout(() => { hasDragged = false; }, 100);
             }
@@ -402,13 +386,12 @@ function updateFinalPreview() {
     
     if (!finalPreviewImg || !preview || !slider || !currentImage) return;
     
-    // Create a canvas to generate the cropped preview
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
     
     img.onload = function() {
-        const outputSize = 80; // Size of final preview
+        const outputSize = 80;
         canvas.width = outputSize;
         canvas.height = outputSize;
         
@@ -416,7 +399,6 @@ function updateFinalPreview() {
         const containerSize = 300;
         const cropSize = 200;
         
-        // Calculate the actual image dimensions and scaling
         const imageAspectRatio = img.width / img.height;
         let displayWidth, displayHeight;
         
@@ -428,15 +410,12 @@ function updateFinalPreview() {
             displayWidth = containerSize * imageAspectRatio;
         }
         
-        // Apply scale
         displayWidth *= scale;
         displayHeight *= scale;
         
-        // Calculate source coordinates accounting for drag position
         const centerX = img.width / 2;
         const centerY = img.height / 2;
         
-        // Convert crop position to image coordinates
         const cropXRatio = -cropPosition.x / displayWidth;
         const cropYRatio = -cropPosition.y / displayHeight;
         
@@ -444,19 +423,16 @@ function updateFinalPreview() {
         const sx = centerX - finalCropSize / 2 + (cropXRatio * img.width);
         const sy = centerY - finalCropSize / 2 + (cropYRatio * img.height);
         
-        // Ensure we don't go outside image bounds
         const finalSx = Math.max(0, Math.min(sx, img.width - finalCropSize));
         const finalSy = Math.max(0, Math.min(sy, img.height - finalCropSize));
         const actualCropSize = Math.min(finalCropSize, img.width - finalSx, img.height - finalSy);
         
-        // Draw cropped image
         ctx.drawImage(
             img, 
             finalSx, finalSy, actualCropSize, actualCropSize,
             0, 0, outputSize, outputSize
         );
         
-        // Set the preview
         finalPreviewImg.src = canvas.toDataURL('image/jpeg', 0.9);
     };
     
@@ -464,19 +440,31 @@ function updateFinalPreview() {
 }
 
 async function saveProfilePicture() {
-    if (!currentImage || !registrationData) {
-        alert('No image selected or registration data missing.');
+    // Load registration data from window when save is clicked
+    if (window.registrationData && window.registrationData.username && window.registrationData.password) {
+        registrationData = window.registrationData;
+    }
+    
+    if (!currentImage) {
+        showAuthNotification('warning', 'No Image', 'Please select an image first.');
+        return;
+    }
+    
+    if (!registrationData) {
+        showAuthNotification('error', 'Error', 'Registration data missing. Please try registering again.');
+        setTimeout(() => {
+            window.location.href = 'register';
+        }, 2000);
         return;
     }
     
     try {
-        // Create canvas for cropping
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
         
         img.onload = async function() {
-            const outputSize = 300; // Output size
+            const outputSize = 300;
             canvas.width = outputSize;
             canvas.height = outputSize;
             
@@ -484,7 +472,6 @@ async function saveProfilePicture() {
             const containerSize = 300;
             const cropSize = 200;
             
-            // Calculate the actual image dimensions and scaling
             const imageAspectRatio = img.width / img.height;
             let displayWidth, displayHeight;
             
@@ -496,15 +483,12 @@ async function saveProfilePicture() {
                 displayWidth = containerSize * imageAspectRatio;
             }
             
-            // Apply scale
             displayWidth *= scale;
             displayHeight *= scale;
             
-            // Calculate source coordinates accounting for drag position
             const centerX = img.width / 2;
             const centerY = img.height / 2;
             
-            // Convert crop position to image coordinates
             const cropXRatio = -cropPosition.x / displayWidth;
             const cropYRatio = -cropPosition.y / displayHeight;
             
@@ -512,27 +496,22 @@ async function saveProfilePicture() {
             const sx = centerX - finalCropSize / 2 + (cropXRatio * img.width);
             const sy = centerY - finalCropSize / 2 + (cropYRatio * img.height);
             
-            // Ensure we don't go outside image bounds
             const finalSx = Math.max(0, Math.min(sx, img.width - finalCropSize));
             const finalSy = Math.max(0, Math.min(sy, img.height - finalCropSize));
             const actualCropSize = Math.min(finalCropSize, img.width - finalSx, img.height - finalSy);
             
-            // Draw cropped image
             ctx.drawImage(
                 img, 
                 finalSx, finalSy, actualCropSize, actualCropSize,
                 0, 0, outputSize, outputSize
             );
             
-            // Convert to blob
             canvas.toBlob(async function(blob) {
-                // Create form data with registration info and image
                 const formData = new FormData();
                 formData.append('username', registrationData.username);
                 formData.append('password', registrationData.password);
                 formData.append('profile_picture', blob, 'profile.jpg');
                 
-                // Submit registration with profile picture
                 try {
                     const response = await fetch('php/process_register_with_pfp.php', {
                         method: 'POST',
@@ -542,14 +521,16 @@ async function saveProfilePicture() {
                     const result = await response.json();
                     
                     if (result.success) {
-                        // Redirect to login page with success message
+                        // Clear registration data
+                        window.registrationData = null;
+                        registrationData = null;
                         window.location.href = 'login?registered=1';
                     } else {
-                        alert('Registration failed: ' + (result.message || 'Unknown error'));
+                        showAuthNotification('error', 'Registration Failed', result.message || 'Unknown error occurred.');
                     }
                 } catch (error) {
                     console.error('Registration error:', error);
-                    alert('Registration failed. Please try again.');
+                    showAuthNotification('error', 'Network Error', 'Failed to connect to server. Please try again.');
                 }
             }, 'image/jpeg', 0.9);
         };
@@ -558,18 +539,25 @@ async function saveProfilePicture() {
         
     } catch (error) {
         console.error('Error processing profile picture:', error);
-        alert('Error processing profile picture. Please try again.');
+        showAuthNotification('error', 'Processing Error', 'Failed to process image. Please try again.');
     }
 }
 
 async function skipProfilePicture() {
+    // Load registration data from window when skip is clicked
+    if (window.registrationData && window.registrationData.username && window.registrationData.password) {
+        registrationData = window.registrationData;
+    }
+    
     if (!registrationData) {
-        alert('Registration data missing.');
+        showAuthNotification('error', 'Error', 'Registration data missing. Please try registering again.');
+        setTimeout(() => {
+            window.location.href = 'register';
+        }, 2000);
         return;
     }
     
     try {
-        // Submit registration without profile picture
         const formData = new FormData();
         formData.append('username', registrationData.username);
         formData.append('password', registrationData.password);
@@ -579,21 +567,23 @@ async function skipProfilePicture() {
             body: formData
         });
         
-        // Redirect based on response
         if (response.redirected) {
+            window.registrationData = null;
+            registrationData = null;
             window.location.href = response.url;
         } else {
             const text = await response.text();
             if (text.includes('login')) {
+                window.registrationData = null;
+                registrationData = null;
                 window.location.href = 'login?registered=1';
             } else {
-                // Handle error
-                document.body.innerHTML = text;
+                showAuthNotification('error', 'Registration Failed', 'An error occurred during registration.');
             }
         }
         
     } catch (error) {
         console.error('Registration error:', error);
-        alert('Registration failed. Please try again.');
+        showAuthNotification('error', 'Network Error', 'Failed to connect to server. Please try again.');
     }
 }

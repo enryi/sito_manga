@@ -17,32 +17,7 @@
         <script src="JS/auth-notifications.js"></script>
         <link rel="stylesheet" href="CSS/navbar.css">
         <link rel="stylesheet" href="CSS/auth.css">
-        <style>
-            .toggle-password {
-                position: absolute;
-                right: 12px;
-                top: 50%;
-                transform: translateY(-50%);
-                cursor: pointer;
-                width: 20px;
-                height: 20px;
-                fill: #666;
-                transition: fill 0.2s ease;
-                z-index: 10;
-            }
-            .toggle-password:hover {
-                fill: #6F2598;
-            }
-            .password-inputs {
-                position: relative;
-                display: flex;
-                align-items: center;
-            }
-            .password-inputs input[type="password"],
-            .password-inputs input[type="text"] {
-                padding-right: 45px !important;
-            }
-        </style>
+        <link rel="stylesheet" href="CSS/password.css">
     </head>
     <body style="background-color: #181A1B; color: #fff; font-family: 'Noto Sans JP', 'Arial', sans-serif; min-height: 100vh;">
         <div class="navbar">

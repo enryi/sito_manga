@@ -107,12 +107,10 @@
 
     if (!isset($currentManga) || !$currentManga) {
         http_response_code(404);
-        echo "<h1>Manga non trovato</h1>";
-        echo "<p>Il manga richiesto non esiste o non è stato ancora approvato.</p>";
-        echo "<p>Slug ricercato: " . htmlspecialchars($mangaSlug) . "</p>";
-        echo "<a href='../'>Torna alla home</a>";
+        require __DIR__ . '/../404.php';
         exit();
     }
+
 
     $mangaId = $currentManga['id'];
 

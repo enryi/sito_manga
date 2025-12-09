@@ -106,6 +106,16 @@ function checkAuthNotifications() {
         showAuthNotification('info', 'Logged Out', 'You have been successfully logged out. See you soon!');
         cleanAuthUrl();
     }
+
+    if (urlParams.get('error') === 'access_denied') {
+        showAuthNotification('error', 'Access Denied', 'You do not have permission to access that page. Admin privileges required.');
+        cleanAuthUrl();
+    }
+
+    if (urlParams.get('notLogget') === 'notLogged') {
+        showAuthNotification('error', 'Access Denied', 'You have to login to access that page.');
+        cleanAuthUrl();
+    }
 }
 
 function cleanAuthUrl() {
@@ -117,65 +127,71 @@ function cleanAuthUrl() {
 
 const authNotificationStyle = document.createElement('style');
 authNotificationStyle.textContent = `
-    /* Auth Notifications System */
+    /* Auth Notifications System - Sotto la Navbar */
     .auth-notifications-container {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-        max-width: 420px;
-        width: 100%;
+        top: 78px; /* Altezza della navbar (circa 68px) + margine */
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        max-width: 1200px; /* Stessa larghezza del container principale */
+        width: calc(100% - 40px); /* Padding laterale */
         pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Allinea le notifiche a sinistra */
+        gap: 12px;
     }
 
     .auth-notification {
-        background: linear-gradient(135deg, #2a2a2a 0%, #333333 100%);
-        border-radius: 12px;
-        margin-bottom: 12px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        border-left: 4px solid;
+        background-color: #2a2a2a; 
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        border-left: 4px solid; 
         color: #fff;
         position: relative;
         overflow: hidden;
-        transform: translateX(100%);
+        transform: translateY(-20px);
         opacity: 0;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: auto;
-        backdrop-filter: blur(10px);
+        max-width: 500px; /* Larghezza massima della notifica */
+        width: 100%;
     }
 
     .auth-notification.show {
-        transform: translateX(0);
+        transform: translateY(0);
         opacity: 1;
     }
 
     .auth-notification.hide {
-        transform: translateX(100%);
+        transform: translateY(-20px);
         opacity: 0;
     }
-
+    
+    /* --- Variazioni di Stato --- */
     .auth-notification.success {
         border-left-color: #4CAF50;
-        background: linear-gradient(135deg, #1b3a1f 0%, #2a4a2f 100%);
+        background-color: #2a2a2a; 
     }
 
     .auth-notification.error {
         border-left-color: #f44336;
-        background: linear-gradient(135deg, #3a1b1b 0%, #4a2a2a 100%);
+        background-color: #2a2a2a;
     }
 
     .auth-notification.warning {
         border-left-color: #ff9800;
-        background: linear-gradient(135deg, #3a2f1b 0%, #4a3a2a 100%);
+        background-color: #2a2a2a;
     }
 
     .auth-notification.info {
         border-left-color: #2196F3;
-        background: linear-gradient(135deg, #1b2a3a 0%, #2a3a4a 100%);
+        background-color: #2a2a2a;
     }
 
     .auth-notification-content {
-        padding: 20px;
+        padding: 15px 18px;
         position: relative;
         z-index: 2;
     }
@@ -183,35 +199,25 @@ authNotificationStyle.textContent = `
     .auth-notification-header {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
-        gap: 12px;
+        margin-bottom: 5px;
+        gap: 10px;
     }
 
     .auth-notification-icon {
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
         flex-shrink: 0;
     }
 
-    .auth-notification.success .auth-notification-icon {
-        color: #4CAF50;
-    }
-
-    .auth-notification.error .auth-notification-icon {
-        color: #f44336;
-    }
-
-    .auth-notification.warning .auth-notification-icon {
-        color: #ff9800;
-    }
-
-    .auth-notification.info .auth-notification-icon {
-        color: #2196F3;
-    }
+    /* Colori delle icone */
+    .auth-notification.success .auth-notification-icon { color: #4CAF50; }
+    .auth-notification.error .auth-notification-icon { color: #f44336; }
+    .auth-notification.warning .auth-notification-icon { color: #ff9800; }
+    .auth-notification.info .auth-notification-icon { color: #2196F3; }
 
     .auth-notification-title {
         font-weight: 600;
-        font-size: 15px;
+        font-size: 14px;
         flex: 1;
         color: #fff;
     }
@@ -219,12 +225,12 @@ authNotificationStyle.textContent = `
     .auth-notification-close {
         background: none;
         border: none;
-        color: rgba(255, 255, 255, 0.7);
+        color: #aaa;
         font-size: 20px;
         cursor: pointer;
         padding: 0;
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -234,61 +240,74 @@ authNotificationStyle.textContent = `
     }
 
     .auth-notification-close:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
+        background-color: #444;
+        color: #fff;
         transform: scale(1.1);
     }
 
     .auth-notification-message {
         font-size: 13px;
-        line-height: 1.5;
-        color: rgba(255, 255, 255, 0.9);
-        margin-left: 34px;
+        line-height: 1.4;
+        color: #ccc;
+        margin-left: 30px;
     }
 
+    /* Barra di progresso */
     .auth-notification-progress {
         position: absolute;
         bottom: 0;
         left: 0;
-        height: 3px;
-        background: linear-gradient(90deg, 
-            rgba(255, 255, 255, 0.3) 0%, 
-            rgba(255, 255, 255, 0.1) 100%);
+        height: 2px; 
+        background-color: rgba(255, 255, 255, 0.1);
         width: 100%;
         animation: authProgressBar 5s linear forwards;
         z-index: 1;
     }
-
+    
     @keyframes authProgressBar {
         from { width: 100%; }
         to { width: 0%; }
     }
 
     /* Mobile responsive */
-    @media (max-width: 480px) {
+    @media (max-width: 1240px) {
         .auth-notifications-container {
-            left: 10px;
-            right: 10px;
-            top: 10px;
-            max-width: none;
+            max-width: calc(100% - 40px);
+            left: 20px;
+            transform: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .auth-notifications-container {
+            top: 68px;
+            width: calc(100% - 30px);
+            left: 15px;
+        }
+        
+        .auth-notification {
+            max-width: 100%;
         }
         
         .auth-notification-content {
-            padding: 16px;
+            padding: 12px;
         }
         
         .auth-notification-title {
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .auth-notification-message {
             font-size: 12px;
             margin-left: 30px;
         }
-        
-        .auth-notification-icon {
-            width: 20px;
-            height: 20px;
+    }
+
+    @media (max-width: 480px) {
+        .auth-notifications-container {
+            top: 68px;
+            width: calc(100% - 20px);
+            left: 10px;
         }
     }
 `;
