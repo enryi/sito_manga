@@ -79,5 +79,4 @@
         $conn->rollback();
         echo json_encode(['success' => false, 'message' => 'Failed to delete account: ' . $e->getMessage()]);
     }
-
 ?>

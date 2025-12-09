@@ -1,5 +1,3 @@
-// Bookmark Filters and Sorting JavaScript with Lazy Loading
-
 class BookmarkManager {
     constructor() {
         this.mangaData = window.mangaData || [];
@@ -7,7 +5,7 @@ class BookmarkManager {
         this.currentSort = 'title_asc';
         this.filteredData = [];
         this.renderedCount = 0;
-        this.itemsPerLoad = 8; // Carica 8 manga alla volta
+        this.itemsPerLoad = 8;
         this.isLoading = false;
         
         this.init();
@@ -30,7 +28,6 @@ class BookmarkManager {
         this.totalChaptersEl = document.getElementById('total-chapters');
         this.avgScoreEl = document.getElementById('avg-score');
         
-        // Crea loading indicator
         this.createLoadingIndicator();
     }
     
@@ -51,7 +48,6 @@ class BookmarkManager {
     }
     
     setupIntersectionObserver() {
-        // Observer per il lazy loading
         this.observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && !this.isLoading) {
@@ -59,10 +55,9 @@ class BookmarkManager {
                 }
             });
         }, {
-            rootMargin: '150px' // Inizia a caricare 150px prima che diventi visibile
+            rootMargin: '150px'
         });
         
-        // Sentinel element per rilevare quando siamo vicini alla fine
         this.sentinel = document.createElement('div');
         this.sentinel.className = 'scroll-sentinel';
         this.sentinel.style.height = '1px';
@@ -70,24 +65,20 @@ class BookmarkManager {
     }
     
     processInitialData() {
-        // Processa tutti i dati per i contatori ma non renderizzare tutto
         this.filteredData = [...this.mangaData];
         
-        // Pulisci il container esistente (rimuovi i manga renderizzati da PHP)
         if (this.mangaList) {
             this.mangaList.innerHTML = '';
         }
     }
     
     bindEvents() {
-        // Status filter buttons
         this.filterBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.handleStatusFilter(e.target);
             });
         });
         
-        // Sort dropdown
         if (this.sortSelect) {
             this.sortSelect.addEventListener('change', (e) => {
                 this.handleSortChange(e.target.value);
@@ -96,14 +87,11 @@ class BookmarkManager {
     }
     
     handleStatusFilter(button) {
-        // Update active button
         this.filterBtns.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
         
-        // Update current status
         this.currentStatus = button.dataset.status;
         
-        // Apply filters
         this.applyFilters();
     }
     
@@ -113,35 +101,27 @@ class BookmarkManager {
     }
     
     applyFilters() {
-        // Reset stato
         this.renderedCount = 0;
         this.isLoading = false;
         
-        // Filtra i dati
         this.filteredData = this.filterData([...this.mangaData]);
         
-        // Ordina i dati
         this.filteredData = this.sortData(this.filteredData);
         
-        // Pulisci la lista esistente
         if (this.mangaList) {
             this.mangaList.innerHTML = '';
         }
         
-        // Rimuovi observer dal vecchio sentinel
         if (this.sentinel.parentNode) {
             this.observer.unobserve(this.sentinel);
             this.sentinel.parentNode.removeChild(this.sentinel);
         }
         
-        // Aggiorna statistiche con tutti i dati filtrati
         this.updateStats(this.filteredData);
         
-        // Controlla se ci sono risultati per mostrare il messaggio vuoto
         if (this.filteredData.length === 0) {
             this.showEmptyState();
         } else {
-            // Carica i primi elementi
             this.loadMoreItems();
         }
     }
@@ -265,7 +245,6 @@ class BookmarkManager {
         this.isLoading = true;
         this.showLoadingIndicator();
         
-        // Simula un piccolo delay per evitare blocchi dell'UI
         requestAnimationFrame(() => {
             const endIndex = Math.min(
                 this.renderedCount + this.itemsPerLoad,
@@ -288,7 +267,6 @@ class BookmarkManager {
             this.isLoading = false;
             this.hideLoadingIndicator();
             
-            // Se ci sono ancora elementi da caricare, aggiungi il sentinel
             if (this.renderedCount < this.filteredData.length) {
                 if (this.mangaList) {
                     this.mangaList.appendChild(this.sentinel);
@@ -388,10 +366,8 @@ class BookmarkManager {
     updateStats(data = null) {
         const dataToUse = data || this.filteredData;
         
-        // Count total entries
         const totalCount = dataToUse.length;
         
-        // Count total chapters and scores
         let totalChapters = 0;
         let totalScores = 0;
         let scoredCount = 0;

@@ -1,4 +1,3 @@
-// search.js - Aggiornato per usare il template dinamico
 let searchTimeout;
 let currentSearchQuery = '';
 
@@ -87,7 +86,6 @@ function createSearchResultItem(manga) {
     const item = document.createElement('div');
     item.className = 'search-result-item';
     
-    // Usa il nuovo sistema di URL puliti
     const titleSlug = manga.title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
     const seriesUrl = `series/${titleSlug}`;
     

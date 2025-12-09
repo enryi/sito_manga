@@ -127,7 +127,6 @@ function cleanAuthUrl() {
 
 const authNotificationStyle = document.createElement('style');
 authNotificationStyle.textContent = `
-    /* Auth Notifications System - Sotto la Navbar */
     .auth-notifications-container {
         position: fixed;
         top: 78px; /* Altezza della navbar (circa 68px) + margine */
@@ -169,7 +168,6 @@ authNotificationStyle.textContent = `
         opacity: 0;
     }
     
-    /* --- Variazioni di Stato --- */
     .auth-notification.success {
         border-left-color: #4CAF50;
         background-color: #2a2a2a; 
@@ -209,7 +207,6 @@ authNotificationStyle.textContent = `
         flex-shrink: 0;
     }
 
-    /* Colori delle icone */
     .auth-notification.success .auth-notification-icon { color: #4CAF50; }
     .auth-notification.error .auth-notification-icon { color: #f44336; }
     .auth-notification.warning .auth-notification-icon { color: #ff9800; }
@@ -252,7 +249,6 @@ authNotificationStyle.textContent = `
         margin-left: 30px;
     }
 
-    /* Barra di progresso */
     .auth-notification-progress {
         position: absolute;
         bottom: 0;
@@ -269,7 +265,6 @@ authNotificationStyle.textContent = `
         to { width: 0%; }
     }
 
-    /* Mobile responsive */
     @media (max-width: 1240px) {
         .auth-notifications-container {
             max-width: calc(100% - 40px);

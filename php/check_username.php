@@ -2,14 +2,12 @@
 header('Content-Type: application/json');
 
 try {
-    // Connessione (metti i tuoi dati)
     $conn = new mysqli('localhost', 'root', '', 'manga');
 
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
     }
 
-    // Leggi JSON in input
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
@@ -20,7 +18,6 @@ try {
 
     $username = trim($data['username']);
 
-    // Prepara query sulla tabella users
     $stmt = $conn->prepare("SELECT username FROM users WHERE username = ? LIMIT 1");
     if (!$stmt) {
         throw new Exception('Prepare failed: ' . $conn->error);

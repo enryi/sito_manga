@@ -3,21 +3,17 @@ let registrationData = null;
 let cropPosition = { x: 0, y: 0 };
 let isDragging = false;
 
-// Initialize registration data - will be loaded when needed
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle file input change
     const pfpInput = document.getElementById('pfpInput');
     if (pfpInput) {
         pfpInput.addEventListener('change', handleImageUpload);
     }
     
-    // Handle crop slider
     const cropSlider = document.getElementById('cropSlider');
     if (cropSlider) {
         cropSlider.addEventListener('input', updateImageScale);
     }
     
-    // Add styles for draggable crop
     addCropStyles();
 });
 
@@ -143,13 +139,11 @@ function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
-    // Validate file type
     if (!file.type.startsWith('image/')) {
         showAuthNotification('error', 'Invalid File', 'Please select a valid image file.');
         return;
     }
     
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
         showAuthNotification('error', 'File Too Large', 'Image size must be less than 5MB.');
         return;
@@ -170,19 +164,15 @@ function displayImagePreview(imageSrc) {
     const controls = document.querySelector('.pfp-crop-controls');
     const buttons = document.querySelector('.pfp-buttons');
     
-    // Show image
     preview.src = imageSrc;
     preview.style.display = 'block';
     placeholder.style.display = 'none';
     
-    // Show controls
     controls.style.display = 'flex';
     buttons.style.display = 'flex';
     
-    // Add has-image class
     container.classList.add('has-image');
     
-    // Add crop overlay and circle if they don't exist
     if (!container.querySelector('.pfp-crop-overlay')) {
         const overlay = document.createElement('div');
         overlay.className = 'pfp-crop-overlay';
@@ -204,16 +194,13 @@ function displayImagePreview(imageSrc) {
         container.appendChild(finalPreview);
     }
     
-    // Reset slider and position
     const slider = document.getElementById('cropSlider');
     slider.value = 1;
     cropPosition = { x: 0, y: 0 };
     updateImageTransform();
     
-    // Add drag functionality
     setupDragHandlers(container);
     
-    // Update final preview
     updateFinalPreview();
 }
 
@@ -440,7 +427,6 @@ function updateFinalPreview() {
 }
 
 async function saveProfilePicture() {
-    // Load registration data from window when save is clicked
     if (window.registrationData && window.registrationData.username && window.registrationData.password) {
         registrationData = window.registrationData;
     }
@@ -521,7 +507,6 @@ async function saveProfilePicture() {
                     const result = await response.json();
                     
                     if (result.success) {
-                        // Clear registration data
                         window.registrationData = null;
                         registrationData = null;
                         window.location.href = 'login?registered=1';
@@ -544,7 +529,6 @@ async function saveProfilePicture() {
 }
 
 async function skipProfilePicture() {
-    // Load registration data from window when skip is clicked
     if (window.registrationData && window.registrationData.username && window.registrationData.password) {
         registrationData = window.registrationData;
     }

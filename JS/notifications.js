@@ -191,7 +191,6 @@ class NotificationSystem {
                 </div>
             `;
         } else {
-            // Create scrollable container for notifications
             html += `<div class="notifications-container" style="
                 max-height: 300px;
                 overflow-y: auto;
@@ -243,7 +242,7 @@ class NotificationSystem {
                 `;
             });
 
-            html += `</div>`; // Close notifications-container
+            html += `</div>`;
         }
 
         this.notificationDropdown.innerHTML = html;

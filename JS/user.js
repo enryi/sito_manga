@@ -49,8 +49,6 @@ function closeAddMangaPopup() {
     }
 }
 
-// OPZIONE 3: Soluzione JavaScript per ellipsis intelligente
-// Aggiungi questo script dopo che i titoli sono stati caricati
 
 function applySmartEllipsis() {
     const titles = document.querySelectorAll('.manga-item .manga-title');
@@ -59,7 +57,6 @@ function applySmartEllipsis() {
         const originalText = title.textContent.trim();
         const maxWidth = title.offsetWidth;
         
-        // Crea un elemento temporaneo per misurare il testo
         const testElement = document.createElement('span');
         testElement.style.font = window.getComputedStyle(title).font;
         testElement.style.fontSize = window.getComputedStyle(title).fontSize;
@@ -71,13 +68,11 @@ function applySmartEllipsis() {
         testElement.style.whiteSpace = 'nowrap';
         document.body.appendChild(testElement);
         
-        // Se il testo originale è troppo lungo
         testElement.textContent = originalText;
         if (testElement.offsetWidth > maxWidth) {
             const words = originalText.split(' ');
             let truncatedText = '';
             
-            // Aggiungi parole una alla volta finché non supera la larghezza
             for (let i = 0; i < words.length; i++) {
                 const testText = truncatedText + (truncatedText ? ' ' : '') + words[i] + '...';
                 testElement.textContent = testText;
@@ -89,10 +84,9 @@ function applySmartEllipsis() {
                 truncatedText += (truncatedText ? ' ' : '') + words[i];
             }
             
-            // Applica il testo troncato con ellipsis
             if (truncatedText && truncatedText !== originalText) {
                 title.textContent = truncatedText + '...';
-                title.title = originalText; // Tooltip con testo completo
+                title.title = originalText;
             }
         }
         
@@ -100,8 +94,4 @@ function applySmartEllipsis() {
     });
 }
 
-// Esegui la funzione quando il DOM è caricato
 document.addEventListener('DOMContentLoaded', applySmartEllipsis);
-
-// Riesegui se necessario dopo aggiornamenti AJAX
-// window.addEventListener('resize', applySmartEllipsis);

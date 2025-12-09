@@ -1,6 +1,6 @@
 <?php
     require_once 'session.php';
-    require_once 'secure_image_upload.php'; // <-- NUOVO
+    require_once 'secure_image_upload.php';
     header('Content-Type: application/json');
 
     if (!isset($_SESSION['user_id'])) {
@@ -20,13 +20,10 @@
         exit();
     }
 
-    // ============================================================
-    // UPLOAD SICURO CON SANITIZZAZIONE IMMAGINE
-    // ============================================================
     $uploadResult = secureImageUpload(
         $_FILES['profile_picture'],
         '../uploads/profiles/',
-        5 * 1024 * 1024  // 5MB
+        5 * 1024 * 1024
     );
     
     if (!$uploadResult['success']) {
@@ -35,16 +32,12 @@
         exit();
     }
     
-    // VERIFICA DIMENSIONI RAGIONEVOLI PER FOTO PROFILO
     if ($uploadResult['width'] > 2000 || $uploadResult['height'] > 2000) {
         @unlink($uploadResult['path']);
         echo json_encode(['success' => false, 'message' => 'Image dimensions too large. Maximum 2000x2000 pixels.']);
         exit();
     }
 
-    // ============================================================
-    // RECUPERO FOTO PROFILO ATTUALE
-    // ============================================================
     $stmt = $conn->prepare("SELECT pfp FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -57,15 +50,11 @@
     }
     $stmt->close();
 
-    // ============================================================
-    // UPDATE DATABASE
-    // ============================================================
     $pfp_path = 'uploads/profiles/' . $uploadResult['filename'];
     $update_stmt = $conn->prepare("UPDATE users SET pfp = ? WHERE id = ?");
     $update_stmt->bind_param("si", $pfp_path, $user_id);
     
     if ($update_stmt->execute()) {
-        // ELIMINA VECCHIA FOTO SE ESISTE
         if ($current_pfp && file_exists('../' . $current_pfp)) {
             @unlink('../' . $current_pfp);
             error_log("Old profile picture deleted: " . $current_pfp);
@@ -78,7 +67,6 @@
             'pfp_path' => $pfp_path
         ]);
     } else {
-        // ROLLBACK: elimina file appena caricato se update fallisce
         @unlink($uploadResult['path']);
         error_log("Failed to update profile picture in database for user $user_id");
         echo json_encode(['success' => false, 'message' => 'Failed to update database']);

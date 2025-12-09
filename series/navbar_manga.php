@@ -10,14 +10,14 @@
         }
         $stmt->close();
     }
-$has_custom_pfp = false;
-$pfp_display_path = '';
-if ($user_pfp) {
-    $pfp_display_path = '../' . $user_pfp;
-    $has_custom_pfp = file_exists($pfp_display_path);
-}
+    $has_custom_pfp = false;
+    $pfp_display_path = '';
+    if ($user_pfp) {
+        $pfp_display_path = '../' . $user_pfp;
+        $has_custom_pfp = file_exists($pfp_display_path);
+    }
 
-$is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
+    $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'];
 ?>
 
     <style>

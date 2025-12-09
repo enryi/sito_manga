@@ -1,4 +1,3 @@
-// search_manga.js - Per quando l'utente è in una sottocartella (series/)
 let searchTimeout;
 let currentSearchQuery = '';
 
@@ -87,7 +86,6 @@ function createSearchResultItem(manga) {
     const item = document.createElement('div');
     item.className = 'search-result-item';
     
-    // Usa il nuovo sistema dinamico - URL pulito
     const titleSlug = manga.title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
     const seriesUrl = `${titleSlug}`;
     

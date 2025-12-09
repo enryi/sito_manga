@@ -19,7 +19,7 @@ async function checkPasswordPwned(password) {
         }
         return 0;
     } catch (error) {
-        return 0; // Assume safe if we can't check
+        return 0;
     }
 }
 
@@ -31,7 +31,6 @@ async function updatePasswordStrength() {
     const strengthContainer = document.getElementById('password-strength-bar');
     const submitButton = document.getElementById('password-button');
     
-    // Show elements when typing starts
     if (password.length > 0) {
         strengthContainer.style.display = 'block';
         strengthMessage.style.display = 'block';
@@ -49,7 +48,6 @@ async function updatePasswordStrength() {
         let message = 'Very Weak';
         let isValid = false;
 
-        // Base strength on length and complexity
         if (password.length >= 12) strength += 25;
         if (password.length >= 16) strength += 15;
         if (/[a-z]/.test(password)) strength += 10;
@@ -57,7 +55,6 @@ async function updatePasswordStrength() {
         if (/[0-9]/.test(password)) strength += 10;
         if (/[^A-Za-z0-9]/.test(password)) strength += 15;
 
-        // Penalize if pwned
         if (pwnedCount > 1000) {
             strength = Math.max(0, strength - 60);
             message = 'Compromised - Very Weak';
@@ -71,7 +68,6 @@ async function updatePasswordStrength() {
             message = 'Previously Breached';
             color = '#ffc107';
         } else {
-            // Not pwned, evaluate normally
             if (strength >= 75) {
                 message = 'Very Strong';
                 color = '#28a745';
@@ -93,13 +89,11 @@ async function updatePasswordStrength() {
             }
         }
 
-        // Update UI
         strengthBar.style.width = `${Math.min(strength, 100)}%`;
         strengthBar.style.backgroundColor = color;
         strengthMessage.textContent = message;
         strengthMessage.style.color = color;
         
-        // Enable/disable submit button
         submitButton.disabled = !isValid;
         
     } catch (error) {
@@ -108,7 +102,6 @@ async function updatePasswordStrength() {
         strengthMessage.textContent = 'Cannot verify security';
         strengthMessage.style.color = '#6c757d';
         
-        // Allow submission if we can't check (but require minimum length)
         submitButton.disabled = password.length < 8;
     }
 }
@@ -122,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         passwordInput.addEventListener('input', updatePasswordStrength);
     }
     
-    // Updated toggle functionality for SVG icons
     if (hideIcon && showIcon) {
         function togglePasswordVisibility() {
             if (passwordInput.type === 'password') {
